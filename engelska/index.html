@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dagens engelskauppgift (åk 7–9)</title>
+  <title>Dagens engelskauppgift (IM)</title>
   <style>
     :root{
       --bg1:#2b153f; --bg2:#1e0f2e;
@@ -87,7 +87,7 @@
       <header>
         <div>
           <h1>Dagens engelskauppgift</h1>
-          <div class="badge"><span class="dot"></span><span>Åk 7–9 · Variation varje dag</span></div>
+          <div class="badge"><span class="dot"></span><span>IM · Lätt att komma igång · 5–10 min</span></div>
         </div>
         <div class="meta">
           <div id="dateText"></div>
@@ -97,7 +97,7 @@
 
       <div class="typeRow">
         <div class="pill" id="typePill">Type: …</div>
-        <div class="pill" id="timePill">Time: 10–15 min</div>
+        <div class="pill" id="timePill">Time: 5–10 min</div>
       </div>
 
       <div class="task" id="taskText">Loading…</div>
@@ -140,156 +140,178 @@ if (doy === 366) doy = 365;
 const seed = y * 1000 + doy;
 const rng = mulberry32(seed);
 
-/* ---------- Task types ---------- */
+/* ---------- Types ---------- */
 const TYPES = [
-  { key:"discussion", label:"Discussion (statement)", time:"10–15 min" },
-  { key:"grammar",    label:"Grammar",               time:"10–15 min" },
-  { key:"riddle",     label:"Riddle / Brain teaser", time:"5–10 min"  },
-  { key:"vocab",      label:"Vocabulary",            time:"5–10 min"  },
-  { key:"writing",    label:"Short writing",         time:"10–15 min" },
-  { key:"reading",    label:"Mini reading",          time:"10–15 min" },
+  { key:"quick",   label:"Quick talk/write", time:"5–10 min" },
+  { key:"choose",  label:"Choose A or B",    time:"5–10 min" },
+  { key:"grammar", label:"Grammar (easy)",   time:"5–10 min" },
+  { key:"vocab",   label:"Word of the day",  time:"5–10 min" },
+  { key:"fix",     label:"Fix the sentence", time:"5–10 min" },
+  { key:"reading", label:"Mini reading",     time:"5–10 min" },
+  { key:"practical",label:"Practical English",time:"5–10 min" },
 ];
 
-/* ---------- Generators ---------- */
-function makeDiscussion(rng){
+/* ---------- Generators (IM-friendly) ---------- */
+function makeQuick(rng){
+  const topics = [
+    "your weekend", "your morning", "a song you like", "a TV show you watch",
+    "a place you want to visit", "something you are good at", "your phone habits"
+  ];
+  const t = pick(rng, topics);
+  const frames = [
+`Write 3 short sentences about ${t}.
+Use these starters:
+1) Today I…
+2) I like / don’t like…
+3) Because…`,
+`Write 4 short sentences about ${t}.
+Use: and / but / because (at least 2 of them).`,
+`Write 3 sentences:
+1) I usually…
+2) Yesterday I…
+3) Tomorrow I will…`
+  ];
+  return {
+    type:"Quick talk/write",
+    time:"5–10 min",
+    q:pick(rng, frames),
+    help:`Goal: get started fast.\nAccept short sentences.\nIf stuck: allow Swedish words inside the sentence and translate 1 key word.`
+  };
+}
+
+function makeChoose(rng){
   const statements = [
-    "Homework should be banned.",
-    "Social media does more harm than good.",
-    "School should start later in the morning.",
-    "Students should wear uniforms.",
-    "AI tools should be allowed in schoolwork.",
-    "Grades motivate students more than they stress them.",
-    "Video games can be a good way to learn.",
-    "Reading books is better than watching movies."
+    "School should start later.",
+    "Homework is helpful.",
+    "Phones should be away during lessons.",
+    "It is better to study alone than in a group.",
+    "AI tools can help students learn."
   ];
   const s = pick(rng, statements);
-  const stance = pick(rng, ["Agree", "Disagree", "Choose your side"]);
   return {
-    type:"Discussion (statement)",
-    time:"10–15 min",
-    q:`Statement:\n“${s}”\n\nTask:\n1) ${stance}.\n2) Write 2 reasons.\n3) Write 1 counterargument.\n4) Finish with a clear conclusion sentence.`,
-    help:`Support:\n- Reason starters: First of all…, Another reason is…, For example…\n- Counterargument: On the other hand…, Some people think…\n- Conclusion: Therefore, I believe…`
+    type:"Choose A or B",
+    time:"5–10 min",
+    q:`Statement:\n${s}\n\nChoose A or B and complete the sentences:\nA) I agree because __________.\nB) I don’t agree because __________.\n\nThen add ONE more sentence:\nAnother reason is __________.`,
+    help:`Keep it simple: 2–3 sentences is enough.\nIf needed: let them speak first, then write.`
   };
 }
 
 function makeGrammar(rng){
-  const topics = [
-    {name:"Past vs. present", prompt:"Rewrite the sentences in the past tense.",
-     s:["I walk to school.", "She plays football after class."]},
-    {name:"There is / There are", prompt:"Choose the correct form: there is / there are.",
-     s:["_____ three books on the table.", "_____ a problem with my phone."]},
-    {name:"Comparatives", prompt:"Rewrite using the comparative form (bigger, more interesting…).",
-     s:["This film is (good) than the last one.", "My bag is (heavy) than yours."]},
-    {name:"Question formation", prompt:"Turn these sentences into questions.",
-     s:["You like pizza.", "They are coming tomorrow."]},
-    {name:"Pronouns", prompt:"Replace the underlined words with the correct pronoun (he/she/it/they/him/her/them).",
-     s:["Sara and I saw _Sara and I_ in the mirror.", "I met _John_ after school."]},
-    {name:"Articles (a/an/the)", prompt:"Fill in: a / an / the / (no article).",
-     s:["I have ___ idea.", "We went to ___ school early."]}
+  const tasks = [
+    {
+      name:"Past tense (easy)",
+      q:`Rewrite in past tense:\n1) I go to school.\n2) We eat lunch.\n3) She watches videos.\n\nBonus: Write ONE sentence about yesterday.`,
+      help:`Support:\ngo→went, eat→ate, watch→watched (often +ed).\nOne correct sentence is a win.`
+    },
+    {
+      name:"Questions",
+      q:`Make questions:\n1) You like pizza.\n2) They are tired.\n3) He plays football.\n\nBonus: Write ONE question to a classmate.`,
+      help:`Support:\nDo/Does…? Are…? What/Where/When…?\nExample: Do you like pizza?`
+    },
+    {
+      name:"There is / There are",
+      q:`Choose: there is / there are\n1) ____ a problem.\n2) ____ two chairs.\n3) ____ many people here.\n\nBonus: Write ONE sentence about this room.`,
+      help:`there is + singular\nthere are + plural`
+    },
+    {
+      name:"Comparatives",
+      q:`Complete with the comparative:\n1) This is (easy) __________ than yesterday.\n2) My bag is (heavy) __________ than yours.\n3) This movie is (good) __________ than that one.\n\nBonus: Write ONE comparative sentence.`,
+      help:`easy→easier, heavy→heavier, good→better`
+    }
   ];
-  const t = pick(rng, topics);
-  const lines = t.s.map(x => "• " + x).join("\n");
-  return {
-    type:`Grammar: ${t.name}`,
-    time:"10–15 min",
-    q:`Task:\n${t.prompt}\n\nSentences:\n${lines}\n\nBonus: Write your own sentence using the same grammar point.`,
-    help:`Teacher support:\n- Let students underline the key words first.\n- Keep focus on one grammar point only.`
-  };
-}
-
-function makeRiddle(rng){
-  const riddles = [
-    {q:"What has to be broken before you can use it?", a:"An egg."},
-    {q:"I’m tall when I’m young, and I’m short when I’m old. What am I?", a:"A candle."},
-    {q:"What can travel around the world while staying in a corner?", a:"A stamp."},
-    {q:"What has many keys but can’t open a single lock?", a:"A piano / keyboard."},
-    {q:"What gets wetter the more it dries?", a:"A towel."}
-  ];
-  const r = pick(rng, riddles);
-  const twist = pick(rng, [
-    "Write your answer and explain your thinking.",
-    "Write two possible answers and explain.",
-    "Create your own riddle in English (2–3 lines)."
-  ]);
-  return {
-    type:"Riddle / Brain teaser",
-    time:"5–c 10 min",
-    q:`Riddle:\n${r.q}\n\nTask:\n${twist}`,
-    help:`Suggested answer: ${r.a}\nTip: The explanation matters more than being right.`
-  };
+  const t = pick(rng, tasks);
+  return { type:`Grammar: ${t.name}`, time:"5–10 min", q:t.q, help:t.help };
 }
 
 function makeVocab(rng){
   const words = [
     ["reliable","pålitlig"], ["exhausted","helt slut"], ["confident","självsäker"],
-    ["improve","förbättra"], ["avoid","undvika"], ["generous","generös"],
-    ["suddenly","plötsligt"], ["curious","nyfiken"], ["choice","val"],
-    ["challenge","utmaning"], ["accurate","korrekt"], ["notice","lägga märke till"]
+    ["improve","förbättra"], ["avoid","undvika"], ["curious","nyfiken"],
+    ["choice","val"], ["challenge","utmaning"], ["notice","lägga märke till"],
+    ["friendly","trevlig"], ["quiet","tyst"], ["important","viktig"]
   ];
   const w = pick(rng, words);
-  const taskType = pick(rng, ["A", "B"]);
-  if (taskType === "A") {
-    return {
-      type:"Vocabulary",
-      time:"5–10 min",
-      q:`Word of the day:\n${w[0]} = ${w[1]}\n\nTask:\n1) Write the word in a sentence.\n2) Write a synonym OR an opposite.\n3) Translate your sentence to Swedish.`,
-      help:`Support:\n- Sentence starter: Today I feel…, I try to…, It is important to…`
-    };
-  }
+  const frame = pick(rng, [
+`Word of the day:\n${w[0]} = ${w[1]}\n\nTask:\n1) Write the word.\n2) Choose ONE:\n   a) I feel ${w[0]} when __________.\n   b) I am not ${w[0]} when __________.\n3) Translate ONE sentence to Swedish.`,
+`Word of the day:\n${w[0]} = ${w[1]}\n\nTask:\nWrite 3 short sentences with the word:\n1) I…\n2) You…\n3) We…`
+  ]);
   return {
-    type:"Vocabulary",
+    type:"Word of the day",
     time:"5–10 min",
-    q:`Word of the day:\n${w[0]} = ${w[1]}\n\nTask:\n1) Write 3 short sentences using the word.\n2) Underline the word each time.\n3) Circle the verb in each sentence.`,
-    help:`Support:\n- Keep sentences short and clear.\n- Example: I am ${w[0]}. / This plan is ${w[0]}.`
+    q:frame,
+    help:`Short is fine.\nIf stuck: give them 3 Swedish ideas, they translate ONE.`
   };
 }
 
-function makeWriting(rng){
-  const starters = [
-    "When I opened the door, everything was silent.",
-    "I knew it was a bad idea, but I did it anyway.",
-    "The message said only one word: 'Run.'",
-    "I never thought I would be the one to…",
-    "Today was supposed to be normal. It wasn’t."
+function makeFix(rng){
+  const items = [
+    {bad:"He go to school yesterday.", good:"He went to school yesterday."},
+    {bad:"I am agree with you.", good:"I agree with you."},
+    {bad:"She have a new phone.", good:"She has a new phone."},
+    {bad:"We was late.", good:"We were late."},
+    {bad:"I have 17 years.", good:"I am 17 years old."},
+    {bad:"In the weekend I played.", good:"On the weekend I played."},
+    {bad:"I very like music.", good:"I really like music."}
   ];
-  const s = pick(rng, starters);
-  const limit = pick(rng, ["80–120 words", "100–150 words"]);
+  const it = pick(rng, items);
   return {
-    type:"Short writing",
-    time:"10–15 min",
-    q:`Write a short text (${limit}).\n\nStart with:\n“${s}”\n\nChecklist:\n- Use at least 3 time words (then, after that, suddenly…)\n- Use at least 2 adjectives\n- Finish with a strong last sentence`,
-    help:`Support:\n- Time words: then, after that, suddenly, finally\n- Adjectives: strange, quiet, nervous, surprised`
+    type:"Fix the sentence",
+    time:"5–10 min",
+    q:`Fix the sentence:\n${it.bad}\n\nTask:\n1) Write the correct sentence.\n2) What changed? (choose ONE)\n   - verb\n   - word order\n   - missing word\n   - wrong word`,
+    help:`Suggested fix:\n${it.good}\nTip: accept “verb” as explanation if they can’t name the rule.`
   };
 }
 
 function makeReading(rng){
   const texts = [
-    "Jamie checked the time again. The bus was late, and the rain was getting heavier. When it finally arrived, the driver didn’t look up. Jamie hesitated, then stepped inside.",
-    "The classroom was unusually quiet. A note lay on the teacher’s desk, folded neatly. No one wanted to be the first to touch it, but everyone wanted to know what it said.",
-    "Mina tried to focus on the test, but her mind kept returning to the phone in her pocket. One vibration. Then another. She swallowed and kept writing."
+    "Alex checked the time again. The bus was late. He looked at the sky and sighed.",
+    "The classroom was quiet. A note was on the desk. No one wanted to touch it.",
+    "Mina wanted to focus, but her phone buzzed. She took a deep breath and kept writing."
   ];
   const t = pick(rng, texts);
-  const qsets = [
-    "1) What is happening?\n2) How does the main character feel? Give one reason.\n3) Write one possible next sentence.",
-    "1) Find one word that creates atmosphere.\n2) What do you think will happen next?\n3) Write a short title (3–6 words).",
-    "1) What is the problem?\n2) Give one detail from the text.\n3) Rewrite one sentence in a simpler way."
-  ];
+  const q = pick(rng, [
+`Questions:\n1) What is happening?\n2) How does the person feel?\n3) Write ONE next sentence.`,
+`Questions:\n1) Find one important word.\n2) What will happen next? (one sentence)\n3) Write a title (3–6 words).`,
+`Questions:\n1) What is the problem?\n2) Copy one sentence from the text.\n3) Rewrite that sentence in easier English.`
+  ]);
   return {
     type:"Mini reading",
-    time:"10–15 min",
-    q:`Text:\n${t}\n\nQuestions:\n${pick(rng, qsets)}`,
-    help:`Teacher support:\n- Ask students to underline one key sentence.\n- Encourage short answers + evidence.`
+    time:"5–10 min",
+    q:`Text:\n${t}\n\n${q}`,
+    help:`Keep answers short.\nIf needed: let them answer Q1 in Swedish, then translate 1 sentence.`
   };
 }
 
-/* ---------- Choose type + generate ---------- */
+function makePractical(rng){
+  const situations = [
+    "You are late. Write a message to your teacher.",
+    "You want to ask for help in class.",
+    "You want to order food at a café.",
+    "You need to ask for directions.",
+    "You want to say no politely."
+  ];
+  const s = pick(rng, situations);
+  const frames = [
+`Situation:\n${s}\n\nTask:\nWrite 2–3 short sentences.\nUse at least ONE of these:\n- please\n- sorry\n- can you…?\n- I need…`,
+`Situation:\n${s}\n\nTask:\nChoose A or B:\nA) Write a short message (2–3 lines).\nB) Write a short dialogue (4 lines).`
+  ];
+  return {
+    type:"Practical English",
+    time:"5–10 min",
+    q:pick(rng, frames),
+    help:`Let them use a template.\nFocus on communication, not perfect grammar.`
+  };
+}
+
+/* ---------- Choose + generate ---------- */
 const chosen = pick(rng, TYPES);
 let task;
-if (chosen.key === "discussion") task = makeDiscussion(rng);
+if (chosen.key === "quick") task = makeQuick(rng);
+else if (chosen.key === "choose") task = makeChoose(rng);
 else if (chosen.key === "grammar") task = makeGrammar(rng);
-else if (chosen.key === "riddle") task = makeRiddle(rng);
 else if (chosen.key === "vocab") task = makeVocab(rng);
-else if (chosen.key === "writing") task = makeWriting(rng);
+else if (chosen.key === "fix") task = makeFix(rng);
+else if (chosen.key === "practical") task = makePractical(rng);
 else task = makeReading(rng);
 
 /* ---------- Render ---------- */
