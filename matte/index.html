@@ -3,35 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dagens mattekluring</title>
+  <title>Dagens matte (åk 7–9)</title>
   <style>
     :root{
-      --bg1:#0b1220;
-      --bg2:#111a2e;
-      --card:#0f172aee;
-      --text:#e5e7eb;
-      --muted:#a1a1aa;
-      --accent:#60a5fa;
-      --border:#23304a;
-      --shadow: 0 20px 60px rgba(0,0,0,.45);
-      --radius: 18px;
+      --bg1:#2b153f; --bg2:#1e0f2e;
+      --card:#140b24ee; --text:#f3f4f6; --muted:#c4b5fd;
+      --accent:#a78bfa; --border:#3b1b5f;
+      --shadow:0 20px 60px rgba(0,0,0,.45); --radius:18px;
     }
     *{box-sizing:border-box}
     body{
-      margin:0;
-      min-height:100vh;
+      margin:0; min-height:100vh;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color:var(--text);
       background:
-        radial-gradient(1200px 600px at 20% 10%, rgba(96,165,250,.25), transparent 60%),
-        radial-gradient(900px 500px at 80% 30%, rgba(34,197,94,.18), transparent 60%),
+        radial-gradient(1200px 600px at 20% 10%, rgba(167,139,250,.22), transparent 60%),
+        radial-gradient(900px 500px at 80% 30%, rgba(236,72,153,.12), transparent 60%),
         linear-gradient(160deg, var(--bg1), var(--bg2));
-      display:flex;
-      align-items:center;
-      justify-content:center;
+      display:flex; align-items:center; justify-content:center;
       padding:24px;
     }
-    .wrap{width:min(880px, 100%);}
+    .wrap{width:min(980px,100%)}
     .card{
       background:var(--card);
       border:1px solid var(--border);
@@ -41,79 +33,83 @@
       backdrop-filter: blur(10px);
     }
     header{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:16px;
-      margin-bottom:18px;
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap:16px; margin-bottom:18px;
     }
-    h1{
-      margin:0;
-      font-size:22px;
-      letter-spacing:.2px;
-    }
-    .meta{
-      text-align:right;
-      color:var(--muted);
-      font-size:14px;
-      line-height:1.4;
-      white-space:nowrap;
-    }
+    h1{margin:0; font-size:22px; letter-spacing:.2px}
+    .meta{ text-align:right; color:var(--muted); font-size:14px; line-height:1.4; white-space:nowrap; }
     .badge{
-      display:inline-flex;
-      gap:8px;
-      align-items:center;
-      padding:6px 10px;
-      border:1px solid var(--border);
-      border-radius:999px;
-      color:var(--muted);
-      font-size:13px;
+      display:inline-flex; gap:8px; align-items:center;
+      padding:6px 10px; border:1px solid var(--border);
+      border-radius:999px; color:var(--muted); font-size:13px; margin-top:8px;
     }
     .dot{
       width:8px;height:8px;border-radius:999px;background:var(--accent);
-      box-shadow:0 0 0 4px rgba(96,165,250,.15);
+      box-shadow:0 0 0 4px rgba(167,139,250,.15);
     }
-    .problem{
-      font-size:20px;
-      line-height:1.55;
-      padding:18px 18px;
-      border-radius:14px;
-      background:rgba(2,6,23,.35);
-      border:1px solid rgba(35,48,74,.7);
+    .row{
+      display:flex; gap:10px; flex-wrap:wrap; margin:14px 0 10px;
+      color:var(--muted); font-size:13px;
     }
-    .footer{
-      margin-top:16px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
+    .pill{
+      border:1px solid rgba(59,27,95,.75);
+      background:rgba(2,6,23,.16);
+      padding:6px 10px; border-radius:999px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
       gap:12px;
+      margin-top:10px;
+    }
+    .blockTitle{
+      margin:0 0 8px;
       color:var(--muted);
       font-size:13px;
+      letter-spacing:.2px;
+      text-transform:uppercase;
     }
-    .tiny{
-      opacity:.85;
+    .task{
+      font-size:18px; line-height:1.55;
+      padding:16px; border-radius:14px;
+      background:rgba(2,6,23,.20);
+      border:1px solid rgba(59,27,95,.75);
+      white-space:pre-wrap;
     }
+    .btnRow{
+      margin-top:12px;
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+    button{
+      cursor:pointer;
+      border:1px solid rgba(59,27,95,.75);
+      background:rgba(2,6,23,.16);
+      color:#f3f4f6;
+      padding:10px 14px;
+      border-radius:12px;
+      font-size:14px;
+    }
+    button.secondary{
+      background:transparent;
+      color:var(--muted);
+    }
+    button:hover{transform:translateY(-1px)}
     details{
       margin-top:12px;
-      border:1px solid rgba(35,48,74,.7);
+      border:1px solid rgba(59,27,95,.75);
       border-radius:14px;
-      background:rgba(2,6,23,.25);
+      background:rgba(2,6,23,.16);
       padding:12px 14px;
     }
-    summary{
-      cursor:pointer;
-      color:var(--muted);
-      font-size:14px;
-      list-style:none;
-    }
+    summary{ cursor:pointer; color:var(--muted); font-size:14px; list-style:none; }
     summary::-webkit-details-marker{display:none}
-    .answer{
-      margin-top:10px;
-      font-size:16px;
-      line-height:1.5;
-      color:var(--text);
-      opacity:.95;
+    .help{ margin-top:10px; font-size:15px; line-height:1.5; opacity:.95; white-space:pre-wrap; }
+    .footer{
+      margin-top:14px; display:flex; justify-content:space-between; gap:12px;
+      color:var(--muted); font-size:13px; flex-wrap:wrap;
     }
+    a{color:var(--muted); text-decoration:none}
+    a:hover{text-decoration:underline}
   </style>
 </head>
 <body>
@@ -121,41 +117,56 @@
     <div class="card">
       <header>
         <div>
-          <h1>Dagens mattekluring</h1>
-          <div style="margin-top:8px" class="badge"><span class="dot"></span><span>Åk 7–9 · Problemlösning</span></div>
+          <h1>Dagens matteuppgift</h1>
+          <div class="badge"><span class="dot"></span><span>Åk 7–9 · Kluring + Problemlösning</span></div>
         </div>
         <div class="meta">
           <div id="dateText"></div>
-          <div id="dayInfo" class="tiny"></div>
+          <div id="dayInfo"></div>
         </div>
       </header>
 
-      <div class="problem" id="problemText">Laddar…</div>
+      <div class="row">
+        <div class="pill" id="topicPill">Område: …</div>
+        <div class="pill" id="timePill">Tid: 10–20 min</div>
+      </div>
 
-      <!-- Valfritt: om du INTE vill ha svar/ledtråd, ta bort hela <details>-blocket -->
+      <div class="grid">
+        <div>
+          <div class="blockTitle">Kluring</div>
+          <div class="task" id="puzzleText">Laddar…</div>
+        </div>
+        <div>
+          <div class="blockTitle">Problemlösning</div>
+          <div class="task" id="problemText">Laddar…</div>
+        </div>
+      </div>
+
+      <div class="btnRow">
+        <button id="newTaskBtn">Ny uppgift</button>
+        <button id="resetBtn" class="secondary">Tillbaka till dagens</button>
+      </div>
+
       <details>
-        <summary>Visa svar (för lärare)</summary>
-        <div class="answer" id="answerText"></div>
+        <summary>Visa lärarstöd</summary>
+        <div class="help" id="helpText"></div>
       </details>
 
       <div class="footer">
-        <div>Öppna samma länk varje dag → ny uppgift automatiskt</div>
-        <div class="tiny" id="seedInfo"></div>
+        <div><a href="../">← Till ämnesval</a></div>
+        <div id="seedInfo"></div>
       </div>
     </div>
   </div>
 
 <script>
-/* ---------- Datumhjälp ---------- */
+/* ---------- Date + RNG helpers ---------- */
 function dayOfYear(date) {
   const start = new Date(date.getFullYear(), 0, 0);
   const diff = date - start;
   const oneDay = 24 * 60 * 60 * 1000;
-  return Math.floor(diff / oneDay); // 1..365/366
+  return Math.floor(diff / oneDay);
 }
-function pad2(n){ return String(n).padStart(2,'0'); }
-
-/* ---------- Deterministisk RNG (Mulberry32) ---------- */
 function mulberry32(seed) {
   return function() {
     let t = seed += 0x6D2B79F5;
@@ -164,164 +175,252 @@ function mulberry32(seed) {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
-function randInt(rng, min, max) { // inkl
-  return Math.floor(rng() * (max - min + 1)) + min;
-}
-function pick(rng, arr) {
-  return arr[randInt(rng, 0, arr.length - 1)];
+function randInt(rng, min, max) { return Math.floor(rng() * (max - min + 1)) + min; }
+function pick(rng, arr) { return arr[randInt(rng, 0, arr.length - 1)]; }
+function shuffle(rng, arr){
+  const a = arr.slice();
+  for (let i=a.length-1;i>0;i--){
+    const j = randInt(rng,0,i);
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
 }
 
-/* ---------- 365-dagarslogik ---------- */
 const today = new Date();
 const y = today.getFullYear();
-let doy = dayOfYear(today);          // 1..365/366
-if (doy === 366) doy = 365;          // gör 365-dagar strikt (skottår dag 366 -> dag 365)
+let doy = dayOfYear(today);
+if (doy === 366) doy = 365;
 
-const seed = y * 1000 + doy;         // samma år+dag => samma uppgift
-const rng = mulberry32(seed);
+// Seed för dagens uppgift
+const seed = y * 1000 + doy;
+const rngDay = mulberry32(seed);
 
-/* ---------- Uppgiftsteman (generator) ---------- */
-function generateProblem(rng){
-  const type = randInt(rng, 1, 12);
+/* ---------- Content builders ---------- */
+function makeAlgebra(rng){
+  const a = randInt(rng, 2, 7);
+  const x = randInt(rng, 3, 12);
+  const b = randInt(rng, 4, 18);
+  const c = a*x + b;
 
-  // Hjälpfunktioner för snyggare tal
-  const a = () => randInt(rng, 2, 9);
-  const b = () => randInt(rng, 3, 12);
-  const c = () => randInt(rng, 4, 20);
+  const p = randInt(rng, 3, 9);
+  const q = randInt(rng, 2, 8);
+  const r = p*q + randInt(rng, 1, 9);
 
-  if (type === 1) { // ekvation: ax + k = m
-    const A = a(), x = randInt(rng, 3, 20), k = randInt(rng, 2, 25);
-    const m = A*x + k;
-    return {
-      q: `Ett tal multipliceras med ${A} och sedan adderas ${k}. Resultatet blir ${m}. Vilket var talet?`,
-      a: `Lös: ${A}x + ${k} = ${m} ⇒ ${A}x = ${m-k} ⇒ x = ${x}.`
-    };
-  }
+  const puzzle = `Utan att räkna allt:
+Vilket är större – ${a}·${x}+${b} eller ${a}·${x}+${b-1}?
+Förklara med en mening.`;
 
-  if (type === 2) { // ekvation: (x - k)/d = r
-    const x = randInt(rng, 20, 80), k = randInt(rng, 2, 18), d = randInt(rng, 2, 9);
-    const r = (x - k) / d;
-    return {
-      q: `Ett tal minskas med ${k} och delas sedan med ${d}. Resultatet blir ${r}. Vilket var talet?`,
-      a: `Lös: (x - ${k})/${d} = ${r} ⇒ x - ${k} = ${r*d} ⇒ x = ${r*d + k}.`
-    };
-  }
+  const problem = `Ekvation i vardag:
+En elev köper ${a} likadana pennor och betalar dessutom ${b} kr i fast avgift.
+Totalt blir det ${c} kr.
 
-  if (type === 3) { // två tal: summa och differens
-    const small = randInt(rng, 10, 60), diff = randInt(rng, 4, 30);
-    const big = small + diff;
-    const sum = big + small;
-    return {
-      q: `Summan av två tal är ${sum}. Det ena talet är ${diff} större än det andra. Vilka är talen?`,
-      a: `Största = ${big}, minsta = ${small}.`
-    };
-  }
+a) Vad kostar en penna?
+b) Skriv ett uttryck för totalpriset om eleven köper x pennor.
+c) Om totalpriset är ${r} kr och den fasta avgiften är ${p} kr – hur många pennor köptes då om varje penna kostar ${q} kr?`;
 
-  if (type === 4) { // procent: höjning/sänkning
-    const start = randInt(rng, 80, 600);
-    const p = randInt(rng, 5, 35);
-    const up = rng() < 0.5;
-    const end = up ? Math.round(start*(1+p/100)) : Math.round(start*(1-p/100));
-    return {
-      q: `Ett pris är ${start} kr. Det ${up ? "höjs" : "sänks"} med ${p}%. Vad blir det nya priset (avrunda till hela kronor)?`,
-      a: `Nytt pris ≈ ${end} kr.`
-    };
-  }
+  const help = `Strategi:
+- a) "Totalt = antal·pris + fast avgift" → plocka bort fasta avgiften först.
+- b) Generalisera: ${b} + ${a? 'x·pris' : 'x·pris'}
+- c) Jobba baklänges: (totalt - fast) / styckpris.`;
 
-  if (type === 5) { // bråk + heltal
-    const whole = randInt(rng, 12, 60);
-    const num = randInt(rng, 1, 3);
-    const den = randInt(rng, 4, 9);
-    const part = whole * num / den;
-    return {
-      q: `${num}/${den} av en klass är ${part} elever. Hur många elever är det i klassen?`,
-      a: `Hela klassen = ${whole} elever.`
-    };
-  }
-
-  if (type === 6) { // omkrets rektangel
-    const w = randInt(rng, 4, 18);
-    const d = randInt(rng, 2, 12);
-    const l = w + d;
-    const P = 2*(l+w);
-    return {
-      q: `En rektangel har omkretsen ${P} cm. Längden är ${d} cm längre än bredden. Bestäm rektangelns mått.`,
-      a: `Bredd = ${w} cm, längd = ${l} cm.`
-    };
-  }
-
-  if (type === 7) { // area triangel
-    const base = randInt(rng, 6, 24);
-    const height = randInt(rng, 5, 20);
-    const area = base*height/2;
-    return {
-      q: `En triangel har basen ${base} cm och höjden ${height} cm. Vad är arean?`,
-      a: `Area = (${base}·${height})/2 = ${area} cm².`
-    };
-  }
-
-  if (type === 8) { // hastighet
-    const dist = randInt(rng, 8, 60);
-    const time = randInt(rng, 20, 120);
-    const speed = (dist / (time/60)).toFixed(1);
-    return {
-      q: `Du cyklar ${dist} km på ${time} minuter. Vilken är din medelhastighet i km/h (avrunda till en decimal)?`,
-      a: `Tid = ${time}/60 h ⇒ v ≈ ${speed} km/h.`
-    };
-  }
-
-  if (type === 9) { // mönster / talföljd
-    const start = randInt(rng, 2, 20);
-    const step = randInt(rng, 2, 12);
-    const seq = [start, start+step, start+2*step, start+3*step];
-    const next = start+4*step;
-    return {
-      q: `Talföljden är: ${seq.join(", ")}, ... Vilket tal kommer sen?`,
-      a: `Det ökar med ${step} varje gång ⇒ nästa är ${next}.`
-    };
-  }
-
-  if (type === 10) { // sannolikhet
-    const red = randInt(rng, 2, 9);
-    const blue = randInt(rng, 2, 9);
-    const total = red + blue;
-    return {
-      q: `I en påse finns ${red} röda och ${blue} blå kulor. Du drar en kula utan att titta. Vad är sannolikheten att få en röd kula? (svara som bråk)`,
-      a: `Sannolikhet = ${red}/${total}.`
-    };
-  }
-
-  if (type === 11) { // proportionalitet
-    const a1 = randInt(rng, 2, 6);
-    const b1 = randInt(rng, 10, 40);
-    const a2 = a1 * randInt(rng, 2, 5);
-    const b2 = b1 * (a2 / a1);
-    return {
-      q: `${a1} liter färg räcker till ${b1} m². Hur många m² räcker ${a2} liter till (förutsatt samma förbrukning)?`,
-      a: `${a2} liter räcker till ${b2} m².`
-    };
-  }
-
-  // type 12: enkel geometri vinkel
-  const angle1 = randInt(rng, 20, 120);
-  const angle2 = randInt(rng, 20, 120);
-  const angle3 = 180 - angle1 - angle2;
-  return {
-    q: `I en triangel är två vinklar ${angle1}° och ${angle2}°. Hur stor är den tredje vinkeln?`,
-    a: `180° − ${angle1}° − ${angle2}° = ${angle3}°.`
-  };
+  return { topic:"Algebra", time:"10–20 min", puzzle, problem, help };
 }
 
-const task = generateProblem(rng);
+function makePercent(rng){
+  const original = randInt(rng, 200, 1200);
+  const p1 = pick(rng, [10,15,20,25,30,40]);
+  const p2 = pick(rng, [5,10,15,20]);
 
-/* ---------- Skriv ut ---------- */
+  const newPrice = Math.round(original * (100 - p1) / 100);
+
+  const puzzle = `Kluring:
+En vara sänks med ${p1}%.
+Är det samma sak som att den "blir ${p1} kr billigare"?
+Svara Ja/Nej och ge ett exempel (du får hitta på ett pris).`;
+
+  const problem = `Rea & rabatt:
+En jacka kostar ${original} kr.
+Först är det ${p1}% rabatt, och efter det ytterligare ${p2}% extra rabatt.
+
+a) Vad kostar jackan efter första rabatten?
+b) Vad kostar den efter båda rabatterna?
+c) En vän säger: "Det blir ${p1+p2}% rabatt totalt."
+Stämmer det alltid? Förklara kort (1–2 meningar).`;
+
+  const help = `Tips:
+- Procenträkning i två steg är multiplicativ: pris · (1 - p/100) · (1 - p2/100).
+- c) Visa med uträkning att procenten inte bara adderas.`;
+
+  return { topic:"Procent", time:"10–20 min", puzzle, problem, help };
+}
+
+function makeGeometry(rng){
+  const w = randInt(rng, 4, 12);
+  const h = randInt(rng, 3, 10);
+  const add = randInt(rng, 1, 5);
+
+  const puzzle = `Kluring:
+En rektangel har sidorna ${w} cm och ${h} cm.
+Om du ökar båda sidorna med ${add} cm – vad händer mest:
+omkretsen eller arean? (Ökar de lika mycket?)
+Förklara utan att räkna jättemycket.`;
+
+  const problem = `Geometri i klassrummet:
+Du ska lägga en ram runt en rektangulär anslagstavla.
+Tavlan är ${w} dm bred och ${h} dm hög.
+
+a) Hur lång list behövs för en ram runt hela tavlan? (omkrets)
+b) Tavlans area är hur många dm²?
+c) Du vill måla tavlan. 1 burk räcker till 60 dm².
+Hur många burkar behöver du om du alltid avrundar uppåt?`;
+
+  const help = `Tips:
+- Omkrets: 2·(bredd + höjd).
+- Area: bredd·höjd.
+- c) Dela area med 60 och avrunda uppåt.`;
+
+  return { topic:"Geometri", time:"10–20 min", puzzle, problem, help };
+}
+
+function makeProbability(rng){
+  const red = randInt(rng, 2, 6);
+  const blue = randInt(rng, 2, 6);
+  const green = randInt(rng, 1, 5);
+  const total = red + blue + green;
+
+  const puzzle = `Kluring:
+Du kastar en vanlig tärning.
+Är chansen större att få ett primtal (2,3,5) eller ett jämnt tal (2,4,6)?
+Motivera med "antal gynnsamma / antal möjliga".`;
+
+  const problem = `Sannolikhet (utan krångel):
+En påse innehåller ${red} röda, ${blue} blå och ${green} gröna kulor (totalt ${total}).
+
+a) Vad är sannolikheten att dra en röd?
+b) Du drar EN kula och lägger tillbaka (med återläggning). Vad är sannolikheten att få röd två gånger i rad?
+c) Du drar TVÅ kulor utan återläggning. Vad är sannolikheten att båda är blå?`;
+
+  const help = `Tips:
+- a) röd/total.
+- b) med återläggning: samma sannolikhet båda gångerna → multiplicera.
+- c) utan återläggning: första blå = blå/total, andra blå = (blå-1)/(total-1).`;
+
+  return { topic:"Sannolikhet", time:"10–20 min", puzzle, problem, help };
+}
+
+function makeFunctions(rng){
+  const m = pick(rng, [2,3,4,5,-2,-3]);
+  const k = randInt(rng, -5, 8);
+  const x1 = randInt(rng, -2, 4);
+  const x2 = x1 + randInt(rng, 1, 4);
+
+  const puzzle = `Kluring:
+En linjär funktion är y = ${m}x ${k>=0?"+ "+k:"- "+Math.abs(k)}.
+Om x ökar med 1, hur mycket ändras y?
+Svara med ett tal och koppla till lutningen.`;
+
+  const problem = `Taxi-modell:
+Ett "taxipris" kan modelleras med y = mx + k där:
+- k är startavgift (kr)
+- m är pris per km (kr/km)
+Anta att y = ${Math.abs(m)}x + ${Math.abs(k)} (bara positiva här).
+
+a) Vad betyder m och k i ord?
+b) Vad kostar resan om du åker ${x2} km?
+c) Hur långt kan du åka för 200 kr? (avrunda till en decimal)`;
+
+  const help = `Tips:
+- a) m = "per km", k = "start".
+- b) sätt in x.
+- c) Lös ekvation: 200 = m·x + k ⇒ x = (200 - k)/m.`;
+
+  return { topic:"Funktioner", time:"10–20 min", puzzle, problem, help };
+}
+
+function makeReasoning(rng){
+  const a = randInt(rng, 6, 20);
+  const b = randInt(rng, 6, 20);
+  const c = randInt(rng, 6, 20);
+  const nums = shuffle(rng, [a,b,c]);
+
+  const puzzle = `Kluring:
+Du har tre tal: ${nums[0]}, ${nums[1]}, ${nums[2]}.
+Du får använda +, −, ×, ÷ (och parenteser).
+Kan du få exakt 24?
+Skriv ett uttryck som blir 24 (om du hittar).`;
+
+  const problem = `Resonemang / strategi:
+En klass ska samla in pengar. De får:
+- 30 kr per såld lott
+- 500 kr i startbidrag
+Målet är 3500 kr.
+
+a) Skriv en formel för hur mycket pengar de får om de säljer x lotter.
+b) Hur många lotter behöver de sälja för att nå målet?
+c) Visa din lösning med en tabell (minst 4 rader) ELLER med en ekvation.`;
+
+  const help = `Tips:
+- a) y = 30x + 500
+- b) 30x + 500 ≥ 3500 ⇒ 30x ≥ 3000 ⇒ x ≥ 100
+- c) tabell: x = 90,95,100,105…`;
+
+  return { topic:"Resonemang", time:"10–20 min", puzzle, problem, help };
+}
+
+/* ---------- Generator ---------- */
+const TOPICS = [
+  makeAlgebra,
+  makePercent,
+  makeGeometry,
+  makeProbability,
+  makeFunctions,
+  makeReasoning
+];
+
+function generateMath(rng){
+  const maker = pick(rng, TOPICS);
+  return maker(rng);
+}
+
+/* ---------- Render ---------- */
+function renderPack(pack){
+  document.getElementById("topicPill").textContent = `Område: ${pack.topic}`;
+  document.getElementById("timePill").textContent = `Tid: ${pack.time}`;
+  document.getElementById("puzzleText").textContent = pack.puzzle;
+  document.getElementById("problemText").textContent = pack.problem;
+  document.getElementById("helpText").textContent = pack.help || "";
+}
+
+const todaysPack = generateMath(rngDay);
+
+// header/footer text
 const months = ["januari","februari","mars","april","maj","juni","juli","augusti","september","oktober","november","december"];
 document.getElementById("dateText").textContent =
   `${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}`;
 document.getElementById("dayInfo").textContent = `Dag ${doy} av 365`;
-document.getElementById("problemText").textContent = task.q;
-document.getElementById("answerText").textContent = task.a;
-document.getElementById("seedInfo").textContent = `Kod: ${y}-${pad2(today.getMonth()+1)}-${pad2(today.getDate())}`;
+document.getElementById("seedInfo").textContent =
+  `Kod: ${y}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
+
+renderPack(todaysPack);
+
+/* ---------- Buttons ---------- */
+const counterKey = `mat_extra_counter_${y}_${doy}`;
+let counter = Number(localStorage.getItem(counterKey) || "0");
+
+document.getElementById("newTaskBtn").addEventListener("click", () => {
+  counter += 1;
+  localStorage.setItem(counterKey, String(counter));
+
+  const extraSeed = seed * 100000 + counter * 17 + 811;
+  const rngExtra = mulberry32(extraSeed);
+
+  const extraPack = generateMath(rngExtra);
+  renderPack(extraPack);
+});
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  renderPack(todaysPack);
+});
 </script>
 </body>
 </html>
