@@ -1,24 +1,327 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-  <meta charset="UTF-8">
-  <title>Dagens kluring</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dagens mattekluring (åk 7–9)</title>
+  <style>
+    :root{
+      --bg1:#0b1220;
+      --bg2:#111a2e;
+      --card:#0f172aee;
+      --text:#e5e7eb;
+      --muted:#a1a1aa;
+      --accent:#60a5fa;
+      --border:#23304a;
+      --shadow: 0 20px 60px rgba(0,0,0,.45);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(96,165,250,.25), transparent 60%),
+        radial-gradient(900px 500px at 80% 30%, rgba(34,197,94,.18), transparent 60%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+    .wrap{width:min(880px, 100%);}
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:28px;
+      backdrop-filter: blur(10px);
+    }
+    header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:18px;
+    }
+    h1{
+      margin:0;
+      font-size:22px;
+      letter-spacing:.2px;
+    }
+    .meta{
+      text-align:right;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.4;
+      white-space:nowrap;
+    }
+    .badge{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding:6px 10px;
+      border:1px solid var(--border);
+      border-radius:999px;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:999px;background:var(--accent);
+      box-shadow:0 0 0 4px rgba(96,165,250,.15);
+    }
+    .problem{
+      font-size:20px;
+      line-height:1.55;
+      padding:18px 18px;
+      border-radius:14px;
+      background:rgba(2,6,23,.35);
+      border:1px solid rgba(35,48,74,.7);
+    }
+    .footer{
+      margin-top:16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .tiny{
+      opacity:.85;
+    }
+    details{
+      margin-top:12px;
+      border:1px solid rgba(35,48,74,.7);
+      border-radius:14px;
+      background:rgba(2,6,23,.25);
+      padding:12px 14px;
+    }
+    summary{
+      cursor:pointer;
+      color:var(--muted);
+      font-size:14px;
+      list-style:none;
+    }
+    summary::-webkit-details-marker{display:none}
+    .answer{
+      margin-top:10px;
+      font-size:16px;
+      line-height:1.5;
+      color:var(--text);
+      opacity:.95;
+    }
+  </style>
 </head>
-<body style="font-family: Arial; padding: 2rem; font-size: 1.4rem;">
-<div id="content"></div>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <div>
+          <h1>Dagens mattekluring</h1>
+          <div style="margin-top:8px" class="badge"><span class="dot"></span><span>Åk 7–9 · Problemlösning</span></div>
+        </div>
+        <div class="meta">
+          <div id="dateText"></div>
+          <div id="dayInfo" class="tiny"></div>
+        </div>
+      </header>
+
+      <div class="problem" id="problemText">Laddar…</div>
+
+      <!-- Valfritt: om du INTE vill ha svar/ledtråd, ta bort hela <details>-blocket -->
+      <details>
+        <summary>Visa svar (för lärare)</summary>
+        <div class="answer" id="answerText"></div>
+      </details>
+
+      <div class="footer">
+        <div>Öppna samma länk varje dag → ny uppgift automatiskt</div>
+        <div class="tiny" id="seedInfo"></div>
+      </div>
+    </div>
+  </div>
 
 <script>
-const kluringar = [
-  "Ett tal multipliceras med 3 och sedan adderas 5. Resultatet blir 26. Vilket var talet?",
-  "Summan av två tal är 40. Det ena är 8 större än det andra. Vilka är talen?",
-  "Tre lika stora tal adderas. Summan blir 45. Vilket är talet?",
-  "Ett tal minskas med 7 och delas med 5. Resultatet blir 3. Vilket är talet?"
-];
+/* ---------- Datumhjälp ---------- */
+function dayOfYear(date) {
+  const start = new Date(date.getFullYear(), 0, 0);
+  const diff = date - start;
+  const oneDay = 24 * 60 * 60 * 1000;
+  return Math.floor(diff / oneDay); // 1..365/366
+}
+function pad2(n){ return String(n).padStart(2,'0'); }
 
-const d = new Date();
-const i = d.getFullYear()*1000 + d.getMonth()*50 + d.getDate();
-document.getElementById("content").innerText =
-  kluringar[i % kluringar.length];
+/* ---------- Deterministisk RNG (Mulberry32) ---------- */
+function mulberry32(seed) {
+  return function() {
+    let t = seed += 0x6D2B79F5;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function randInt(rng, min, max) { // inkl
+  return Math.floor(rng() * (max - min + 1)) + min;
+}
+function pick(rng, arr) {
+  return arr[randInt(rng, 0, arr.length - 1)];
+}
+
+/* ---------- 365-dagarslogik ---------- */
+const today = new Date();
+const y = today.getFullYear();
+let doy = dayOfYear(today);          // 1..365/366
+if (doy === 366) doy = 365;          // gör 365-dagar strikt (skottår dag 366 -> dag 365)
+
+const seed = y * 1000 + doy;         // samma år+dag => samma uppgift
+const rng = mulberry32(seed);
+
+/* ---------- Uppgiftsteman (generator) ---------- */
+function generateProblem(rng){
+  const type = randInt(rng, 1, 12);
+
+  // Hjälpfunktioner för snyggare tal
+  const a = () => randInt(rng, 2, 9);
+  const b = () => randInt(rng, 3, 12);
+  const c = () => randInt(rng, 4, 20);
+
+  if (type === 1) { // ekvation: ax + k = m
+    const A = a(), x = randInt(rng, 3, 20), k = randInt(rng, 2, 25);
+    const m = A*x + k;
+    return {
+      q: `Ett tal multipliceras med ${A} och sedan adderas ${k}. Resultatet blir ${m}. Vilket var talet?`,
+      a: `Lös: ${A}x + ${k} = ${m} ⇒ ${A}x = ${m-k} ⇒ x = ${x}.`
+    };
+  }
+
+  if (type === 2) { // ekvation: (x - k)/d = r
+    const x = randInt(rng, 20, 80), k = randInt(rng, 2, 18), d = randInt(rng, 2, 9);
+    const r = (x - k) / d;
+    return {
+      q: `Ett tal minskas med ${k} och delas sedan med ${d}. Resultatet blir ${r}. Vilket var talet?`,
+      a: `Lös: (x - ${k})/${d} = ${r} ⇒ x - ${k} = ${r*d} ⇒ x = ${r*d + k}.`
+    };
+  }
+
+  if (type === 3) { // två tal: summa och differens
+    const small = randInt(rng, 10, 60), diff = randInt(rng, 4, 30);
+    const big = small + diff;
+    const sum = big + small;
+    return {
+      q: `Summan av två tal är ${sum}. Det ena talet är ${diff} större än det andra. Vilka är talen?`,
+      a: `Största = ${big}, minsta = ${small}.`
+    };
+  }
+
+  if (type === 4) { // procent: höjning/sänkning
+    const start = randInt(rng, 80, 600);
+    const p = randInt(rng, 5, 35);
+    const up = rng() < 0.5;
+    const end = up ? Math.round(start*(1+p/100)) : Math.round(start*(1-p/100));
+    return {
+      q: `Ett pris är ${start} kr. Det ${up ? "höjs" : "sänks"} med ${p}%. Vad blir det nya priset (avrunda till hela kronor)?`,
+      a: `Nytt pris ≈ ${end} kr.`
+    };
+  }
+
+  if (type === 5) { // bråk + heltal
+    const whole = randInt(rng, 12, 60);
+    const num = randInt(rng, 1, 3);
+    const den = randInt(rng, 4, 9);
+    const part = whole * num / den;
+    return {
+      q: `${num}/${den} av en klass är ${part} elever. Hur många elever är det i klassen?`,
+      a: `Hela klassen = ${whole} elever.`
+    };
+  }
+
+  if (type === 6) { // omkrets rektangel
+    const w = randInt(rng, 4, 18);
+    const d = randInt(rng, 2, 12);
+    const l = w + d;
+    const P = 2*(l+w);
+    return {
+      q: `En rektangel har omkretsen ${P} cm. Längden är ${d} cm längre än bredden. Bestäm rektangelns mått.`,
+      a: `Bredd = ${w} cm, längd = ${l} cm.`
+    };
+  }
+
+  if (type === 7) { // area triangel
+    const base = randInt(rng, 6, 24);
+    const height = randInt(rng, 5, 20);
+    const area = base*height/2;
+    return {
+      q: `En triangel har basen ${base} cm och höjden ${height} cm. Vad är arean?`,
+      a: `Area = (${base}·${height})/2 = ${area} cm².`
+    };
+  }
+
+  if (type === 8) { // hastighet
+    const dist = randInt(rng, 8, 60);
+    const time = randInt(rng, 20, 120);
+    const speed = (dist / (time/60)).toFixed(1);
+    return {
+      q: `Du cyklar ${dist} km på ${time} minuter. Vilken är din medelhastighet i km/h (avrunda till en decimal)?`,
+      a: `Tid = ${time}/60 h ⇒ v ≈ ${speed} km/h.`
+    };
+  }
+
+  if (type === 9) { // mönster / talföljd
+    const start = randInt(rng, 2, 20);
+    const step = randInt(rng, 2, 12);
+    const seq = [start, start+step, start+2*step, start+3*step];
+    const next = start+4*step;
+    return {
+      q: `Talföljden är: ${seq.join(", ")}, ... Vilket tal kommer sen?`,
+      a: `Det ökar med ${step} varje gång ⇒ nästa är ${next}.`
+    };
+  }
+
+  if (type === 10) { // sannolikhet
+    const red = randInt(rng, 2, 9);
+    const blue = randInt(rng, 2, 9);
+    const total = red + blue;
+    return {
+      q: `I en påse finns ${red} röda och ${blue} blå kulor. Du drar en kula utan att titta. Vad är sannolikheten att få en röd kula? (svara som bråk)`,
+      a: `Sannolikhet = ${red}/${total}.`
+    };
+  }
+
+  if (type === 11) { // proportionalitet
+    const a1 = randInt(rng, 2, 6);
+    const b1 = randInt(rng, 10, 40);
+    const a2 = a1 * randInt(rng, 2, 5);
+    const b2 = b1 * (a2 / a1);
+    return {
+      q: `${a1} liter färg räcker till ${b1} m². Hur många m² räcker ${a2} liter till (förutsatt samma förbrukning)?`,
+      a: `${a2} liter räcker till ${b2} m².`
+    };
+  }
+
+  // type 12: enkel geometri vinkel
+  const angle1 = randInt(rng, 20, 120);
+  const angle2 = randInt(rng, 20, 120);
+  const angle3 = 180 - angle1 - angle2;
+  return {
+    q: `I en triangel är två vinklar ${angle1}° och ${angle2}°. Hur stor är den tredje vinkeln?`,
+    a: `180° − ${angle1}° − ${angle2}° = ${angle3}°.`
+  };
+}
+
+const task = generateProblem(rng);
+
+/* ---------- Skriv ut ---------- */
+const months = ["januari","februari","mars","april","maj","juni","juli","augusti","september","oktober","november","december"];
+document.getElementById("dateText").textContent =
+  `${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}`;
+document.getElementById("dayInfo").textContent = `Dag ${doy} av 365`;
+document.getElementById("problemText").textContent = task.q;
+document.getElementById("answerText").textContent = task.a;
+document.getElementById("seedInfo").textContent = `Kod: ${y}-${pad2(today.getMonth()+1)}-${pad2(today.getDate())}`;
 </script>
 </body>
 </html>
