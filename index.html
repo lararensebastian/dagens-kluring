@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>Dagens kluring</title>
+</head>
+<body style="font-family: Arial; padding: 2rem; font-size: 1.4rem;">
+<div id="content"></div>
+
+<script>
+const kluringar = [
+  "Ett tal multipliceras med 3 och sedan adderas 5. Resultatet blir 26. Vilket var talet?",
+  "Summan av två tal är 40. Det ena är 8 större än det andra. Vilka är talen?",
+  "Tre lika stora tal adderas. Summan blir 45. Vilket är talet?",
+  "Ett tal minskas med 7 och delas med 5. Resultatet blir 3. Vilket är talet?"
+];
+
+const d = new Date();
+const i = d.getFullYear()*1000 + d.getMonth()*50 + d.getDate();
+document.getElementById("content").innerText =
+  kluringar[i % kluringar.length];
+</script>
+</body>
+</html>
