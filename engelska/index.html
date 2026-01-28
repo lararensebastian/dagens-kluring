@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dagens engelskauppgift</title>
+  <title>Dagens engelskauppgift (IM)</title>
   <style>
     :root{
       --bg1:#2b153f; --bg2:#1e0f2e;
@@ -63,6 +63,24 @@
       border:1px solid rgba(59,27,95,.75);
       white-space:pre-wrap;
     }
+    .btnRow{
+      margin-top:12px;
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+    button{
+      cursor:pointer;
+      border:1px solid rgba(59,27,95,.75);
+      background:rgba(2,6,23,.16);
+      color:#f3f4f6;
+      padding:10px 14px;
+      border-radius:12px;
+      font-size:14px;
+    }
+    button.secondary{
+      background:transparent;
+      color:var(--muted);
+    }
+    button:hover{transform:translateY(-1px)}
     details{
       margin-top:12px;
       border:1px solid rgba(59,27,95,.75);
@@ -102,6 +120,11 @@
 
       <div class="task" id="taskText">Loading…</div>
 
+      <div class="btnRow">
+        <button id="newTaskBtn">Ny uppgift</button>
+        <button id="resetBtn" class="secondary">Tillbaka till dagens</button>
+      </div>
+
       <details>
         <summary>Visa lärarstöd</summary>
         <div class="help" id="helpText"></div>
@@ -137,18 +160,20 @@ const today = new Date();
 const y = today.getFullYear();
 let doy = dayOfYear(today);
 if (doy === 366) doy = 365;
+
+// Seed för "dagens"
 const seed = y * 1000 + doy;
-const rng = mulberry32(seed);
+const rngDay = mulberry32(seed);
 
 /* ---------- Types ---------- */
 const TYPES = [
-  { key:"quick",   label:"Quick talk/write", time:"5–10 min" },
-  { key:"choose",  label:"Choose A or B",    time:"5–10 min" },
-  { key:"grammar", label:"Grammar (easy)",   time:"5–10 min" },
-  { key:"vocab",   label:"Word of the day",  time:"5–10 min" },
-  { key:"fix",     label:"Fix the sentence", time:"5–10 min" },
-  { key:"reading", label:"Mini reading",     time:"5–10 min" },
-  { key:"practical",label:"Practical English",time:"5–10 min" },
+  { key:"quick",     label:"Quick talk/write",  time:"5–10 min" },
+  { key:"choose",    label:"Choose A or B",     time:"5–10 min" },
+  { key:"grammar",   label:"Grammar (easy)",    time:"5–10 min" },
+  { key:"vocab",     label:"Word of the day",   time:"5–10 min" },
+  { key:"fix",       label:"Fix + build (mini)",time:"5–10 min" },
+  { key:"reading",   label:"Mini reading",      time:"5–10 min" },
+  { key:"practical", label:"Practical English", time:"5–10 min" },
 ];
 
 /* ---------- Generators (IM-friendly) ---------- */
@@ -175,7 +200,9 @@ Use: and / but / because (at least 2 of them).`,
     type:"Quick talk/write",
     time:"5–10 min",
     q:pick(rng, frames),
-    help:`Goal: get started fast.\nAccept short sentences.\nIf stuck: allow Swedish words inside the sentence and translate 1 key word.`
+    help:`Goal: get started fast.
+Accept short sentences.
+If stuck: allow Swedish words inside the sentence and translate 1 key word.`
   };
 }
 
@@ -191,8 +218,17 @@ function makeChoose(rng){
   return {
     type:"Choose A or B",
     time:"5–10 min",
-    q:`Statement:\n${s}\n\nChoose A or B and complete the sentences:\nA) I agree because __________.\nB) I don’t agree because __________.\n\nThen add ONE more sentence:\nAnother reason is __________.`,
-    help:`Keep it simple: 2–3 sentences is enough.\nIf needed: let them speak first, then write.`
+    q:`Statement:
+${s}
+
+Choose A or B and complete the sentences:
+A) I agree because __________.
+B) I don’t agree because __________.
+
+Then add ONE more sentence:
+Another reason is __________.`,
+    help:`Keep it simple: 2–3 sentences is enough.
+If needed: let them speak first, then write.`
   };
 }
 
@@ -200,22 +236,47 @@ function makeGrammar(rng){
   const tasks = [
     {
       name:"Past tense (easy)",
-      q:`Rewrite in past tense:\n1) I go to school.\n2) We eat lunch.\n3) She watches videos.\n\nBonus: Write ONE sentence about yesterday.`,
-      help:`Support:\ngo→went, eat→ate, watch→watched (often +ed).\nOne correct sentence is a win.`
+      q:`Rewrite in past tense:
+1) I go to school.
+2) We eat lunch.
+3) She watches videos.
+
+Bonus: Write ONE sentence about yesterday.`,
+      help:`Support:
+go→went, eat→ate, watch→watched (often +ed).
+One correct sentence is a win.`
     },
     {
       name:"Questions",
-      q:`Make questions:\n1) You like pizza.\n2) They are tired.\n3) He plays football.\n\nBonus: Write ONE question to a classmate.`,
-      help:`Support:\nDo/Does…? Are…? What/Where/When…?\nExample: Do you like pizza?`
+      q:`Make questions:
+1) You like pizza.
+2) They are tired.
+3) He plays football.
+
+Bonus: Write ONE question to a classmate.`,
+      help:`Support:
+Do/Does…? Are…? What/Where/When…?
+Example: Do you like pizza?`
     },
     {
       name:"There is / There are",
-      q:`Choose: there is / there are\n1) ____ a problem.\n2) ____ two chairs.\n3) ____ many people here.\n\nBonus: Write ONE sentence about this room.`,
-      help:`there is + singular\nthere are + plural`
+      q:`Choose: there is / there are
+1) ____ a problem.
+2) ____ two chairs.
+3) ____ many people here.
+
+Bonus: Write ONE sentence about this room.`,
+      help:`there is + singular
+there are + plural`
     },
     {
       name:"Comparatives",
-      q:`Complete with the comparative:\n1) This is (easy) __________ than yesterday.\n2) My bag is (heavy) __________ than yours.\n3) This movie is (good) __________ than that one.\n\nBonus: Write ONE comparative sentence.`,
+      q:`Complete with the comparative:
+1) This is (easy) __________ than yesterday.
+2) My bag is (heavy) __________ than yours.
+3) This movie is (good) __________ than that one.
+
+Bonus: Write ONE comparative sentence.`,
       help:`easy→easier, heavy→heavier, good→better`
     }
   ];
@@ -232,17 +293,34 @@ function makeVocab(rng){
   ];
   const w = pick(rng, words);
   const frame = pick(rng, [
-`Word of the day:\n${w[0]} = ${w[1]}\n\nTask:\n1) Write the word.\n2) Choose ONE:\n   a) I feel ${w[0]} when __________.\n   b) I am not ${w[0]} when __________.\n3) Translate ONE sentence to Swedish.`,
-`Word of the day:\n${w[0]} = ${w[1]}\n\nTask:\nWrite 3 short sentences with the word:\n1) I…\n2) You…\n3) We…`
+`Word of the day:
+${w[0]} = ${w[1]}
+
+Task:
+1) Write the word.
+2) Choose ONE:
+   a) I feel ${w[0]} when __________.
+   b) I am not ${w[0]} when __________.
+3) Translate ONE sentence to Swedish.`,
+`Word of the day:
+${w[0]} = ${w[1]}
+
+Task:
+Write 3 short sentences with the word:
+1) I…
+2) You…
+3) We…`
   ]);
   return {
     type:"Word of the day",
     time:"5–10 min",
     q:frame,
-    help:`Short is fine.\nIf stuck: give them 3 Swedish ideas, they translate ONE.`
+    help:`Short is fine.
+If stuck: give them 3 Swedish ideas, they translate ONE.`
   };
 }
 
+// Uppgraderad "Fix" så den tar lite längre (inte 2 sek)
 function makeFix(rng){
   const items = [
     {bad:"We was late because the bus was late.", good:"We were late because the bus was late.", focus:"was/were (plural)"},
@@ -290,7 +368,6 @@ Sentence starters (if stuck):
   return { type:"Fix + build (mini)", time:"5–10 min", q:prompt, help:help };
 }
 
-
 function makeReading(rng){
   const texts = [
     "Alex checked the time again. The bus was late. He looked at the sky and sighed.",
@@ -299,15 +376,28 @@ function makeReading(rng){
   ];
   const t = pick(rng, texts);
   const q = pick(rng, [
-`Questions:\n1) What is happening?\n2) How does the person feel?\n3) Write ONE next sentence.`,
-`Questions:\n1) Find one important word.\n2) What will happen next? (one sentence)\n3) Write a title (3–6 words).`,
-`Questions:\n1) What is the problem?\n2) Copy one sentence from the text.\n3) Rewrite that sentence in easier English.`
+`Questions:
+1) What is happening?
+2) How does the person feel?
+3) Write ONE next sentence.`,
+`Questions:
+1) Find one important word.
+2) What will happen next? (one sentence)
+3) Write a title (3–6 words).`,
+`Questions:
+1) What is the problem?
+2) Copy one sentence from the text.
+3) Rewrite that sentence in easier English.`
   ]);
   return {
     type:"Mini reading",
     time:"5–10 min",
-    q:`Text:\n${t}\n\n${q}`,
-    help:`Keep answers short.\nIf needed: let them answer Q1 in Swedish, then translate 1 sentence.`
+    q:`Text:
+${t}
+
+${q}`,
+    help:`Keep answers short.
+If needed: let them answer Q1 in Swedish, then translate 1 sentence.`
   };
 }
 
@@ -321,29 +411,57 @@ function makePractical(rng){
   ];
   const s = pick(rng, situations);
   const frames = [
-`Situation:\n${s}\n\nTask:\nWrite 2–3 short sentences.\nUse at least ONE of these:\n- please\n- sorry\n- can you…?\n- I need…`,
-`Situation:\n${s}\n\nTask:\nChoose A or B:\nA) Write a short message (2–3 lines).\nB) Write a short dialogue (4 lines).`
+`Situation:
+${s}
+
+Task:
+Write 2–3 short sentences.
+Use at least ONE of these:
+- please
+- sorry
+- can you…?
+- I need…`,
+`Situation:
+${s}
+
+Task:
+Choose A or B:
+A) Write a short message (2–3 lines).
+B) Write a short dialogue (4 lines).`
   ];
   return {
     type:"Practical English",
     time:"5–10 min",
     q:pick(rng, frames),
-    help:`Let them use a template.\nFocus on communication, not perfect grammar.`
+    help:`Let them use a template.
+Focus on communication, not perfect grammar.`
   };
 }
 
-/* ---------- Choose + generate ---------- */
-const chosen = pick(rng, TYPES);
-let task;
-if (chosen.key === "quick") task = makeQuick(rng);
-else if (chosen.key === "choose") task = makeChoose(rng);
-else if (chosen.key === "grammar") task = makeGrammar(rng);
-else if (chosen.key === "vocab") task = makeVocab(rng);
-else if (chosen.key === "fix") task = makeFix(rng);
-else if (chosen.key === "practical") task = makePractical(rng);
-else task = makeReading(rng);
+/* ---------- One function to generate a task from an rng ---------- */
+function generateTask(rng){
+  const chosen = pick(rng, TYPES);
+  if (chosen.key === "quick") return makeQuick(rng);
+  if (chosen.key === "choose") return makeChoose(rng);
+  if (chosen.key === "grammar") return makeGrammar(rng);
+  if (chosen.key === "vocab") return makeVocab(rng);
+  if (chosen.key === "fix") return makeFix(rng);
+  if (chosen.key === "practical") return makePractical(rng);
+  return makeReading(rng);
+}
 
-/* ---------- Render ---------- */
+/* ---------- Render helpers ---------- */
+function renderTask(t){
+  document.getElementById("typePill").textContent = `Type: ${t.type}`;
+  document.getElementById("timePill").textContent = `Time: ${t.time}`;
+  document.getElementById("taskText").textContent = t.q;
+  document.getElementById("helpText").textContent = t.help || "";
+}
+
+/* ---------- Build "today's task" ---------- */
+const todaysTask = generateTask(rngDay);
+
+/* ---------- Header/footer text ---------- */
 const months = ["januari","februari","mars","april","maj","juni","juli","augusti","september","oktober","november","december"];
 document.getElementById("dateText").textContent =
   `${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}`;
@@ -351,10 +469,29 @@ document.getElementById("dayInfo").textContent = `Dag ${doy} av 365`;
 document.getElementById("seedInfo").textContent =
   `Kod: ${y}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
 
-document.getElementById("typePill").textContent = `Type: ${task.type}`;
-document.getElementById("timePill").textContent = `Time: ${task.time}`;
-document.getElementById("taskText").textContent = task.q;
-document.getElementById("helpText").textContent = task.help;
+/* ---------- Initial render ---------- */
+renderTask(todaysTask);
+
+/* ---------- Buttons: extra tasks on the spot ---------- */
+// Counter per day (så "Ny uppgift" ger ny varje klick, men samma för alla på samma dator om man vill)
+const counterKey = `eng_extra_counter_${y}_${doy}`;
+let counter = Number(localStorage.getItem(counterKey) || "0");
+
+document.getElementById("newTaskBtn").addEventListener("click", () => {
+  counter += 1;
+  localStorage.setItem(counterKey, String(counter));
+
+  // Extra-seed: dagens seed + klickräknare -> nya uppgifter per klick
+  const extraSeed = seed * 1000 + counter;
+  const rngExtra = mulberry32(extraSeed);
+
+  const extraTask = generateTask(rngExtra);
+  renderTask(extraTask);
+});
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  renderTask(todaysTask);
+});
 </script>
 </body>
 </html>
