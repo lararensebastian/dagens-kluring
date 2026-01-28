@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dagens uppgift</title>
+  <style>
+    body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+      font-family:system-ui,Segoe UI,Arial;background:linear-gradient(160deg,#2b153f,#1e0f2e);color:#f3f4f6;padding:24px}
+    .card{width:min(720px,100%);background:rgba(20,11,36,.92);border:1px solid #3b1b5f;
+      border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.45);padding:26px}
+    h1{margin:0 0 8px;font-size:22px}
+    p{margin:0 0 18px;color:#c4b5fd}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+    a{display:block;text-decoration:none;color:#f3f4f6;padding:14px 16px;border-radius:14px;
+      border:1px solid #3b1b5f;background:rgba(2,6,23,.18)}
+    a:hover{transform:translateY(-1px)}
+    .small{margin-top:14px;color:#c4b5fd;font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Dagens uppgift</h1>
+    <p>Välj ämne:</p>
+    <div class="grid">
+      <a href="matte/">Matte (åk 7–9)</a>
+      <a href="svenska/">Svenska</a>
+      <a href="engelska/">Engelska</a>
+    </div>
+    <div class="small">Samma länkar varje dag – nytt innehåll automatiskt.</div>
+  </div>
+</body>
+</html>
