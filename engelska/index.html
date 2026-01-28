@@ -171,7 +171,7 @@ const TYPES = [
   { key:"choose",    label:"Choose A or B",     time:"5–10 min" },
   { key:"grammar",   label:"Grammar (easy)",    time:"5–10 min" },
   { key:"vocab",     label:"Word of the day",   time:"5–10 min" },
-  { key:"fix",       label:"Fix + build (mini)",time:"5–10 min" },
+  { key:"build",     label:"Build sentences",   time:"5–10 min" },
   { key:"reading",   label:"Mini reading",      time:"5–10 min" },
   { key:"practical", label:"Practical English", time:"5–10 min" },
 ];
@@ -179,8 +179,13 @@ const TYPES = [
 /* ---------- Generators (IM-friendly) ---------- */
 function makeQuick(rng){
   const topics = [
-    "your weekend", "your morning", "a song you like", "a TV show you watch",
-    "a place you want to visit", "something you are good at", "your phone habits"
+    "your weekend","your morning","your evening","your sleep","your plans today",
+    "something you learned","something you find difficult","something you are proud of",
+    "a song you like","a movie you watched","a TV show you watch","a YouTube channel",
+    "a hobby","sports","music","gaming","food","a café","a city you like",
+    "a place you want to visit","a job you could imagine","a job you would NOT want",
+    "school rules","break time","your phone habits","your screen time",
+    "a good habit","a bad habit","money","saving vs spending","your future","a goal this year"
   ];
   const t = pick(rng, topics);
   const frames = [
@@ -212,7 +217,12 @@ function makeChoose(rng){
     "Homework is helpful.",
     "Phones should be away during lessons.",
     "It is better to study alone than in a group.",
-    "AI tools can help students learn."
+    "AI tools can help students learn.",
+    "Students should have more breaks.",
+    "Group work is better than individual work.",
+    "Public transport should be cheaper for students.",
+    "Tests are the best way to show learning.",
+    "Being on time is more important than being perfect."
   ];
   const s = pick(rng, statements);
   return {
@@ -243,8 +253,7 @@ function makeGrammar(rng){
 
 Bonus: Write ONE sentence about yesterday.`,
       help:`Support:
-go→went, eat→ate, watch→watched (often +ed).
-One correct sentence is a win.`
+go→went, eat→ate, watch→watched (often +ed).`
     },
     {
       name:"Questions",
@@ -255,7 +264,7 @@ One correct sentence is a win.`
 
 Bonus: Write ONE question to a classmate.`,
       help:`Support:
-Do/Does…? Are…? What/Where/When…?
+Do/Does…? Are…?
 Example: Do you like pizza?`
     },
     {
@@ -289,7 +298,9 @@ function makeVocab(rng){
     ["reliable","pålitlig"], ["exhausted","helt slut"], ["confident","självsäker"],
     ["improve","förbättra"], ["avoid","undvika"], ["curious","nyfiken"],
     ["choice","val"], ["challenge","utmaning"], ["notice","lägga märke till"],
-    ["friendly","trevlig"], ["quiet","tyst"], ["important","viktig"]
+    ["friendly","trevlig"], ["quiet","tyst"], ["important","viktig"],
+    ["safe","säker"], ["healthy","hälsosam"], ["serious","seriös"], ["proud","stolt"],
+    ["focus","fokus"], ["effort","ansträngning"], ["mistake","misstag"], ["success","framgång"]
   ];
   const w = pick(rng, words);
   const frame = pick(rng, [
@@ -320,52 +331,41 @@ If stuck: give them 3 Swedish ideas, they translate ONE.`
   };
 }
 
-// Uppgraderad "Fix" så den tar lite längre (inte 2 sek)
-function makeFix(rng){
-  const items = [
-    {bad:"We was late because the bus was late.", good:"We were late because the bus was late.", focus:"was/were (plural)"},
-    {bad:"He don't like school in the morning.", good:"He doesn't like school in the morning.", focus:"don't/doesn't"},
-    {bad:"I am agree with you, but it is hard.", good:"I agree with you, but it is hard.", focus:"no 'am' with agree"},
-    {bad:"She have a new phone and it are expensive.", good:"She has a new phone and it is expensive.", focus:"has / is"},
-    {bad:"Yesterday I go to the store and buy food.", good:"Yesterday I went to the store and bought food.", focus:"past tense"},
-    {bad:"In the weekend I played football.", good:"On the weekend I played football.", focus:"on the weekend"},
-    {bad:"I very like this song because it's good.", good:"I really like this song because it's good.", focus:"really/very"}
+function makeBuild(rng){
+  const sets = [
+    ["I","usually","go","to bed","at","10","because","I","work","tomorrow"],
+    ["We","are","tired","but","we","will","finish","the","task","today"],
+    ["She","doesn't","like","math","but","she","tries","every","day"],
+    ["They","can","help","me","after","class","if","I","ask","politely"],
+    ["I","want","a","job","because","I","need","money","for","my","license"],
+    ["Can","you","help","me","with","this","task","please"],
+    ["I","am","not","ready","yet","but","I","will","try"],
+    ["We","have","time","now","so","let's","start","together"]
   ];
+  const words = pick(rng, sets).slice();
+  for (let i = words.length - 1; i > 0; i--) {
+    const j = randInt(rng, 0, i);
+    [words[i], words[j]] = [words[j], words[i]];
+  }
 
-  const it = pick(rng, items);
+  return {
+    type:"Build sentences",
+    time:"5–10 min",
+    q:`Build from blocks:
 
-  const prompt =
-`Fix the sentence (and extend it):
+Words:
+${words.join(" / ")}
 
-1) Write the correct sentence.
-2) What changed? Choose ONE:
-   - verb / tense
-   - do/does
-   - was/were
-   - wrong word
-3) Write 2 NEW sentences using the same rule (your own ideas).
-
-Optional (if finished):
-Write a 2-line dialogue using one of your new sentences.
-
-Sentence to fix:
-${it.bad}`;
-
-  const help =
-`Suggested fix:
-${it.good}
-
-Rule focus:
-${it.focus}
-
-Sentence starters (if stuck):
-- Today I…
-- Yesterday I…
-- We are…
-- He/She doesn’t…
-- Because…`;
-
-  return { type:"Fix + build (mini)", time:"5–10 min", q:prompt, help:help };
+Task:
+1) Make 3 correct sentences using the words.
+2) Make 1 question.
+3) Bonus: Use because OR but in one sentence.`,
+    help:`Teacher support:
+- Accept short sentences.
+- Students can reuse words.
+- If stuck, give a starter:
+  "I usually…" / "We are…" / "She doesn't…" / "Can you…?"`
+  };
 }
 
 function makeReading(rng){
@@ -407,7 +407,9 @@ function makePractical(rng){
     "You want to ask for help in class.",
     "You want to order food at a café.",
     "You need to ask for directions.",
-    "You want to say no politely."
+    "You want to say no politely.",
+    "You need to book an appointment by message.",
+    "You forgot your homework. Write a short message."
   ];
   const s = pick(rng, situations);
   const frames = [
@@ -445,7 +447,7 @@ function generateTask(rng){
   if (chosen.key === "choose") return makeChoose(rng);
   if (chosen.key === "grammar") return makeGrammar(rng);
   if (chosen.key === "vocab") return makeVocab(rng);
-  if (chosen.key === "fix") return makeFix(rng);
+  if (chosen.key === "build") return makeBuild(rng);
   if (chosen.key === "practical") return makePractical(rng);
   return makeReading(rng);
 }
@@ -473,7 +475,6 @@ document.getElementById("seedInfo").textContent =
 renderTask(todaysTask);
 
 /* ---------- Buttons: extra tasks on the spot ---------- */
-// Counter per day (så "Ny uppgift" ger ny varje klick, men samma för alla på samma dator om man vill)
 const counterKey = `eng_extra_counter_${y}_${doy}`;
 let counter = Number(localStorage.getItem(counterKey) || "0");
 
@@ -481,8 +482,7 @@ document.getElementById("newTaskBtn").addEventListener("click", () => {
   counter += 1;
   localStorage.setItem(counterKey, String(counter));
 
-  // Extra-seed: dagens seed + klickräknare -> nya uppgifter per klick
-  const extraSeed = seed * 1000 + counter;
+  const extraSeed = seed * 100000 + counter * 13 + 997;
   const rngExtra = mulberry32(extraSeed);
 
   const extraTask = generateTask(rngExtra);
