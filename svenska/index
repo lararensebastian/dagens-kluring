@@ -1,1 +1,282 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dagens svenskauppgift (åk 7–9)</title>
+  <style>
+    :root{
+      --bg1:#2b153f; --bg2:#1e0f2e;
+      --card:#140b24ee; --text:#f3f4f6; --muted:#c4b5fd;
+      --accent:#a78bfa; --border:#3b1b5f;
+      --shadow:0 20px 60px rgba(0,0,0,.45); --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(167,139,250,.22), transparent 60%),
+        radial-gradient(900px 500px at 80% 30%, rgba(236,72,153,.12), transparent 60%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+      display:flex; align-items:center; justify-content:center;
+      padding:24px;
+    }
+    .wrap{width:min(920px,100%)}
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:28px;
+      backdrop-filter: blur(10px);
+    }
+    header{
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap:16px; margin-bottom:18px;
+    }
+    h1{margin:0; font-size:22px; letter-spacing:.2px}
+    .meta{ text-align:right; color:var(--muted); font-size:14px; line-height:1.4; white-space:nowrap; }
+    .badge{
+      display:inline-flex; gap:8px; align-items:center;
+      padding:6px 10px; border:1px solid var(--border);
+      border-radius:999px; color:var(--muted); font-size:13px; margin-top:8px;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:999px;background:var(--accent);
+      box-shadow:0 0 0 4px rgba(167,139,250,.15);
+    }
+    .typeRow{
+      display:flex; gap:10px; flex-wrap:wrap; margin:14px 0 10px;
+      color:var(--muted); font-size:13px;
+    }
+    .pill{
+      border:1px solid rgba(59,27,95,.75);
+      background:rgba(2,6,23,.16);
+      padding:6px 10px; border-radius:999px;
+    }
+    .task{
+      font-size:19px; line-height:1.55;
+      padding:16px; border-radius:14px;
+      background:rgba(2,6,23,.20);
+      border:1px solid rgba(59,27,95,.75);
+      white-space:pre-wrap;
+    }
+    details{
+      margin-top:12px;
+      border:1px solid rgba(59,27,95,.75);
+      border-radius:14px;
+      background:rgba(2,6,23,.16);
+      padding:12px 14px;
+    }
+    summary{ cursor:pointer; color:var(--muted); font-size:14px; list-style:none; }
+    summary::-webkit-details-marker{display:none}
+    .help{ margin-top:10px; font-size:15px; line-height:1.5; opacity:.95; white-space:pre-wrap; }
+    .footer{
+      margin-top:14px; display:flex; justify-content:space-between; gap:12px;
+      color:var(--muted); font-size:13px; flex-wrap:wrap;
+    }
+    a{color:var(--muted); text-decoration:none}
+    a:hover{text-decoration:underline}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <div>
+          <h1>Dagens svenskauppgift</h1>
+          <div class="badge"><span class="dot"></span><span>Åk 7–9 · Variation varje dag</span></div>
+        </div>
+        <div class="meta">
+          <div id="dateText"></div>
+          <div id="dayInfo"></div>
+        </div>
+      </header>
 
+      <div class="typeRow">
+        <div class="pill" id="typePill">Typ: …</div>
+        <div class="pill" id="timePill">Tid: 10–15 min</div>
+      </div>
+
+      <div class="task" id="taskText">Laddar…</div>
+
+      <details>
+        <summary>Visa lärarstöd</summary>
+        <div class="help" id="helpText"></div>
+      </details>
+
+      <div class="footer">
+        <div><a href="../">← Till ämnesval</a></div>
+        <div id="seedInfo"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ---------- Datum + seed ---------- */
+function dayOfYear(date) {
+  const start = new Date(date.getFullYear(), 0, 0);
+  const diff = date - start;
+  const oneDay = 24 * 60 * 60 * 1000;
+  return Math.floor(diff / oneDay); // 1..365/366
+}
+function mulberry32(seed) {
+  return function() {
+    let t = seed += 0x6D2B79F5;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function randInt(rng, min, max) { return Math.floor(rng() * (max - min + 1)) + min; }
+function pick(rng, arr) { return arr[randInt(rng, 0, arr.length - 1)]; }
+
+const today = new Date();
+const y = today.getFullYear();
+let doy = dayOfYear(today);
+if (doy === 366) doy = 365;
+const seed = y * 1000 + doy;
+const rng = mulberry32(seed);
+
+/* ---------- Uppgiftstyper ---------- */
+const TYPES = [
+  { key:"diskussion", label:"Diskussion (påstående)", time:"10–15 min" },
+  { key:"grammatik",  label:"Grammatik",              time:"10–15 min" },
+  { key:"gåta",       label:"Gåta / kluring",         time:"5–10 min" },
+  { key:"språk",      label:"Språk & stil",           time:"10–15 min" },
+  { key:"läs",        label:"Läsförståelse (kort)",    time:"10–15 min" },
+];
+
+/* ---------- Mallar (många små variationer = 365+ känsla) ---------- */
+function makeDiskussion(rng){
+  const claims = [
+    "Mobiltelefoner ska vara helt förbjudna i skolan.",
+    "Läxor hjälper fler än de stjälper.",
+    "Skolan borde börja senare på morgonen.",
+    "Betyg i åk 7–9 gör elever mer stressade än motiverade.",
+    "AI-verktyg borde få användas mer i skolan.",
+    "Idrott och hälsa borde vara betygsgrundande på ett annat sätt.",
+    "Det är bättre att läsa böcker än att lyssna på ljudböcker.",
+    "Skolmat ska vara gratis även efter gymnasiet (t.ex. på högskola)."
+  ];
+  const claim = pick(rng, claims);
+  const angle = pick(rng, ["Håller du med?", "Håller du inte med?", "Du får välja sida själv."]);
+  return {
+    type:"Diskussion (påstående)",
+    time:"10–15 min",
+    q:`Påstående:\n“${claim}”\n\nUppgift:\n1) ${angle}\n2) Skriv 2 argument.\n3) Skriv 1 motargument.\n4) Avsluta med en mening som sammanfattar din åsikt.`,
+    help:`Stöd:\n- Argument börjar ofta med: För det första…, Dessutom…, Ett exempel är…\n- Motargument: Å andra sidan…, Vissa tycker att…\n- Sammanfattning: Därför anser jag att…`
+  };
+}
+
+function makeGrammatik(rng){
+  const topics = [
+    {name:"Substantiv", q:"Markera substantiven i meningen och skriv dem i bestämd form singular.",
+     sentence:"Den gamla cykeln stod lutad mot väggen utanför huset."},
+    {name:"Verb", q:"Stryk under verben. Skriv dem sedan i preteritum (dåtid).",
+     sentence:"Jag springer hem och öppnar dörren när jag hör ljudet."},
+    {name:"Adjektiv", q:"Hitta adjektiven. Skriv sedan en synonym till varje.",
+     sentence:"Det var en märklig, tyst och spännande kväll."},
+    {name:"Satsdelar", q:"Markera subjekt och predikat i meningen.",
+     sentence:"Mina kompisar spelade fotboll efter skolan."},
+    {name:"Kommatecken", q:"Sätt ut kommatecken där du tycker att det behövs. Motivera med en kort mening.",
+     sentence:"När jag kom hem började det regna men jag hade ingen jacka."},
+    {name:"Direkt och indirekt tal", q:"Skriv om meningen från direkt tal till indirekt tal.",
+     sentence:"“Jag kan inte komma idag”, sa Amir."},
+  ];
+  const t = pick(rng, topics);
+  return {
+    type:`Grammatik: ${t.name}`,
+    time:"10–15 min",
+    q:`Mening:\n${t.sentence}\n\nUppgift:\n${t.q}`,
+    help:`Stöd:\n- Subjekt = vem/vad gör något.\n- Predikat/verb = vad som händer.\n- Adjektiv beskriver substantiv.\n- Kommatecken kan markera paus eller skilja satser.`
+  };
+}
+
+function makeGata(rng){
+  const riddles = [
+    {q:"Jag har ett öga men kan inte se. Vad är jag?", a:"En nål."},
+    {q:"Ju mer du tar, desto mer lämnar du efter dig. Vad är det?", a:"Fotsteg."},
+    {q:"Jag går upp men kommer aldrig ner. Vad är jag?", a:"Ålder."},
+    {q:"Vad kan fylla ett rum utan att ta plats?", a:"Ljus."},
+    {q:"Vilket ord blir kortare när du lägger till två bokstäver?", a:"Kort → kortare (eller “short” på engelska är klassikern)."},
+  ];
+  const r = pick(rng, riddles);
+  const twist = pick(rng, ["Skriv din gissning och förklara varför.", "Skriv två möjliga svar och motivera.", "Skriv ett eget liknande gåt-påstående."]);
+  return {
+    type:"Gåta / kluring",
+    time:"5–10 min",
+    q:`Gåta:\n${r.q}\n\nUppgift:\n${twist}`,
+    help:`Lärarstöd:\nFacitförslag: ${r.a}\nTips: be eleverna motivera (resonemang > rätt svar).`
+  };
+}
+
+function makeSprakStil(rng){
+  const prompts = [
+    "Skriv om meningen så att den blir mer formell.",
+    "Skriv om meningen så att den blir mer talspråklig.",
+    "Skriv om meningen så att den blir mer levande (mer detaljer).",
+    "Skriv om meningen så att den blir kortare men behåller samma betydelse."
+  ];
+  const sentences = [
+    "Jag var typ jättenervös innan provet.",
+    "Det var en bra dag och jag gick hem.",
+    "Hon sa att hon inte brydde sig men jag såg att hon gjorde det.",
+    "Vi hade det kul och allt blev bra till slut."
+  ];
+  const p = pick(rng, prompts);
+  const s = pick(rng, sentences);
+  return {
+    type:"Språk & stil",
+    time:"10–15 min",
+    q:`Utgångsmening:\n${s}\n\nUppgift:\n1) ${p}\n2) Skriv även en kort mening om vad du ändrade (ordval, meningsbyggnad, ton).`,
+    help:`Stöd:\n- Formellt: undvik “typ”, “jätte-”, slang.\n- Levande: lägg till sinnesintryck (ljud, lukt, känsla).\n- Kortare: ta bort upprepningar och onödiga ord.`
+  };
+}
+
+function makeLasforstaelse(rng){
+  const microtexts = [
+    "På rasten stod alla i en klunga. Ingen sa något, men alla visste vem som hade startat ryktet.",
+    "Bussen var sen igen. När den väl kom kändes luften inne som en varm filt.",
+    "Hon öppnade meddelandet, läste en gång till och kände hur magen drog ihop sig."
+  ];
+  const t = pick(rng, microtexts);
+  const qs = [
+    "1) Vad antyds mellan raderna?\n2) Vilken känsla dominerar?\n3) Skriv en fortsättning på 2 meningar.",
+    "1) Vem tror du berättaren är?\n2) Hitta ett ord som skapar stämning.\n3) Byt ut ordet mot ett starkare.",
+    "1) Vad är konflikten eller problemet?\n2) Ge ett citat som visar stämning.\n3) Skriv en alternativ rubrik."
+  ];
+  return {
+    type:"Läsförståelse (kort)",
+    time:"10–15 min",
+    q:`Text:\n${t}\n\nFrågor:\n${pick(rng, qs)}`,
+    help:`Stöd:\n- “Mellan raderna” = sådant som inte står rakt ut.\n- Stämningsord är ofta adjektiv/verb med känsla.`
+  };
+}
+
+/* ---------- Välj typ per dag + generera ---------- */
+const picker = pick(rng, TYPES);
+let task;
+if (picker.key === "diskussion") task = makeDiskussion(rng);
+else if (picker.key === "grammatik") task = makeGrammatik(rng);
+else if (picker.key === "gåta") task = makeGata(rng);
+else if (picker.key === "språk") task = makeSprakStil(rng);
+else task = makeLasforstaelse(rng);
+
+/* ---------- Render ---------- */
+const months = ["januari","februari","mars","april","maj","juni","juli","augusti","september","oktober","november","december"];
+document.getElementById("dateText").textContent =
+  `${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}`;
+document.getElementById("dayInfo").textContent = `Dag ${doy} av 365`;
+document.getElementById("seedInfo").textContent =
+  `Kod: ${y}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
+
+document.getElementById("typePill").textContent = `Typ: ${task.type}`;
+document.getElementById("timePill").textContent = `Tid: ${task.time}`;
+document.getElementById("taskText").textContent = task.q;
+document.getElementById("helpText").textContent = task.help;
+</script>
+</body>
+</html>
