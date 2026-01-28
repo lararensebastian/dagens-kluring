@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dagens engelskauppgift (åk 7–9)</title>
+  <style>
+    :root{
+      --bg1:#2b153f; --bg2:#1e0f2e;
+      --card:#140b24ee; --text:#f3f4f6; --muted:#c4b5fd;
+      --accent:#a78bfa; --border:#3b1b5f;
+      --shadow:0 20px 60px rgba(0,0,0,.45); --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(167,139,250,.22), transparent 60%),
+        radial-gradient(900px 500px at 80% 30%, rgba(236,72,153,.12), transparent 60%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+      display:flex; align-items:center; justify-content:center;
+      padding:24px;
+    }
+    .wrap{width:min(920px,100%)}
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:28px;
+      backdrop-filter: blur(10px);
+    }
+    header{
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap:16px; margin-bottom:18px;
+    }
+    h1{margin:0; font-size:22px; letter-spacing:.2px}
+    .meta{ text-align:right; color:var(--muted); font-size:14px; line-height:1.4; white-space:nowrap; }
+    .badge{
+      display:inline-flex; gap:8px; align-items:center;
+      padding:6px 10px; border:1px solid var(--border);
+      border-radius:999px; color:var(--muted); font-size:13px; margin-top:8px;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:999px;background:var(--accent);
+      box-shadow:0 0 0 4px rgba(167,139,250,.15);
+    }
+    .typeRow{
+      display:flex; gap:10px; flex-wrap:wrap; margin:14px 0 10px;
+      color:var(--muted); font-size:13px;
+    }
+    .pill{
+      border:1px solid rgba(59,27,95,.75);
+      background:rgba(2,6,23,.16);
+      padding:6px 10px; border-radius:999px;
+    }
+    .task{
+      font-size:19px; line-height:1.55;
+      padding:16px; border-radius:14px;
+      background:rgba(2,6,23,.20);
+      border:1px solid rgba(59,27,95,.75);
+      white-space:pre-wrap;
+    }
+    details{
+      margin-top:12px;
+      border:1px solid rgba(59,27,95,.75);
+      border-radius:14px;
+      background:rgba(2,6,23,.16);
+      padding:12px 14px;
+    }
+    summary{ cursor:pointer; color:var(--muted); font-size:14px; list-style:none; }
+    summary::-webkit-details-marker{display:none}
+    .help{ margin-top:10px; font-size:15px; line-height:1.5; opacity:.95; white-space:pre-wrap; }
+    .footer{
+      margin-top:14px; display:flex; justify-content:space-between; gap:12px;
+      color:var(--muted); font-size:13px; flex-wrap:wrap;
+    }
+    a{color:var(--muted); text-decoration:none}
+    a:hover{text-decoration:underline}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <div>
+          <h1>Dagens engelskauppgift</h1>
+          <div class="badge"><span class="dot"></span><span>Åk 7–9 · Variation varje dag</span></div>
+        </div>
+        <div class="meta">
+          <div id="dateText"></div>
+          <div id="dayInfo"></div>
+        </div>
+      </header>
+
+      <div class="typeRow">
+        <div class="pill" id="typePill">Type: …</div>
+        <div class="pill" id="timePill">Time: 10–15 min</div>
+      </div>
+
+      <div class="task" id="taskText">Loading…</div>
+
+      <details>
+        <summary>Visa lärarstöd</summary>
+        <div class="help" id="helpText"></div>
+      </details>
+
+      <div class="footer">
+        <div><a href="../">← Till ämnesval</a></div>
+        <div id="seedInfo"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ---------- Date + seed ---------- */
+function dayOfYear(date) {
+  const start = new Date(date.getFullYear(), 0, 0);
+  const diff = date - start;
+  const oneDay = 24 * 60 * 60 * 1000;
+  return Math.floor(diff / oneDay);
+}
+function mulberry32(seed) {
+  return function() {
+    let t = seed += 0x6D2B79F5;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function randInt(rng, min, max) { return Math.floor(rng() * (max - min + 1)) + min; }
+function pick(rng, arr) { return arr[randInt(rng, 0, arr.length - 1)]; }
+
+const today = new Date();
+const y = today.getFullYear();
+let doy = dayOfYear(today);
+if (doy === 366) doy = 365;
+const seed = y * 1000 + doy;
+const rng = mulberry32(seed);
+
+/* ---------- Task types ---------- */
+const TYPES = [
+  { key:"discussion", label:"Discussion (statement)", time:"10–15 min" },
+  { key:"grammar",    label:"Grammar",               time:"10–15 min" },
+  { key:"riddle",     label:"Riddle / Brain teaser", time:"5–10 min"  },
+  { key:"vocab",      label:"Vocabulary",            time:"5–10 min"  },
+  { key:"writing",    label:"Short writing",         time:"10–15 min" },
+  { key:"reading",    label:"Mini reading",          time:"10–15 min" },
+];
+
+/* ---------- Generators ---------- */
+function makeDiscussion(rng){
+  const statements = [
+    "Homework should be banned.",
+    "Social media does more harm than good.",
+    "School should start later in the morning.",
+    "Students should wear uniforms.",
+    "AI tools should be allowed in schoolwork.",
+    "Grades motivate students more than they stress them.",
+    "Video games can be a good way to learn.",
+    "Reading books is better than watching movies."
+  ];
+  const s = pick(rng, statements);
+  const stance = pick(rng, ["Agree", "Disagree", "Choose your side"]);
+  return {
+    type:"Discussion (statement)",
+    time:"10–15 min",
+    q:`Statement:\n“${s}”\n\nTask:\n1) ${stance}.\n2) Write 2 reasons.\n3) Write 1 counterargument.\n4) Finish with a clear conclusion sentence.`,
+    help:`Support:\n- Reason starters: First of all…, Another reason is…, For example…\n- Counterargument: On the other hand…, Some people think…\n- Conclusion: Therefore, I believe…`
+  };
+}
+
+function makeGrammar(rng){
+  const topics = [
+    {name:"Past vs. present", prompt:"Rewrite the sentences in the past tense.",
+     s:["I walk to school.", "She plays football after class."]},
+    {name:"There is / There are", prompt:"Choose the correct form: there is / there are.",
+     s:["_____ three books on the table.", "_____ a problem with my phone."]},
+    {name:"Comparatives", prompt:"Rewrite using the comparative form (bigger, more interesting…).",
+     s:["This film is (good) than the last one.", "My bag is (heavy) than yours."]},
+    {name:"Question formation", prompt:"Turn these sentences into questions.",
+     s:["You like pizza.", "They are coming tomorrow."]},
+    {name:"Pronouns", prompt:"Replace the underlined words with the correct pronoun (he/she/it/they/him/her/them).",
+     s:["Sara and I saw _Sara and I_ in the mirror.", "I met _John_ after school."]},
+    {name:"Articles (a/an/the)", prompt:"Fill in: a / an / the / (no article).",
+     s:["I have ___ idea.", "We went to ___ school early."]}
+  ];
+  const t = pick(rng, topics);
+  const lines = t.s.map(x => "• " + x).join("\n");
+  return {
+    type:`Grammar: ${t.name}`,
+    time:"10–15 min",
+    q:`Task:\n${t.prompt}\n\nSentences:\n${lines}\n\nBonus: Write your own sentence using the same grammar point.`,
+    help:`Teacher support:\n- Let students underline the key words first.\n- Keep focus on one grammar point only.`
+  };
+}
+
+function makeRiddle(rng){
+  const riddles = [
+    {q:"What has to be broken before you can use it?", a:"An egg."},
+    {q:"I’m tall when I’m young, and I’m short when I’m old. What am I?", a:"A candle."},
+    {q:"What can travel around the world while staying in a corner?", a:"A stamp."},
+    {q:"What has many keys but can’t open a single lock?", a:"A piano / keyboard."},
+    {q:"What gets wetter the more it dries?", a:"A towel."}
+  ];
+  const r = pick(rng, riddles);
+  const twist = pick(rng, [
+    "Write your answer and explain your thinking.",
+    "Write two possible answers and explain.",
+    "Create your own riddle in English (2–3 lines)."
+  ]);
+  return {
+    type:"Riddle / Brain teaser",
+    time:"5–c 10 min",
+    q:`Riddle:\n${r.q}\n\nTask:\n${twist}`,
+    help:`Suggested answer: ${r.a}\nTip: The explanation matters more than being right.`
+  };
+}
+
+function makeVocab(rng){
+  const words = [
+    ["reliable","pålitlig"], ["exhausted","helt slut"], ["confident","självsäker"],
+    ["improve","förbättra"], ["avoid","undvika"], ["generous","generös"],
+    ["suddenly","plötsligt"], ["curious","nyfiken"], ["choice","val"],
+    ["challenge","utmaning"], ["accurate","korrekt"], ["notice","lägga märke till"]
+  ];
+  const w = pick(rng, words);
+  const taskType = pick(rng, ["A", "B"]);
+  if (taskType === "A") {
+    return {
+      type:"Vocabulary",
+      time:"5–10 min",
+      q:`Word of the day:\n${w[0]} = ${w[1]}\n\nTask:\n1) Write the word in a sentence.\n2) Write a synonym OR an opposite.\n3) Translate your sentence to Swedish.`,
+      help:`Support:\n- Sentence starter: Today I feel…, I try to…, It is important to…`
+    };
+  }
+  return {
+    type:"Vocabulary",
+    time:"5–10 min",
+    q:`Word of the day:\n${w[0]} = ${w[1]}\n\nTask:\n1) Write 3 short sentences using the word.\n2) Underline the word each time.\n3) Circle the verb in each sentence.`,
+    help:`Support:\n- Keep sentences short and clear.\n- Example: I am ${w[0]}. / This plan is ${w[0]}.`
+  };
+}
+
+function makeWriting(rng){
+  const starters = [
+    "When I opened the door, everything was silent.",
+    "I knew it was a bad idea, but I did it anyway.",
+    "The message said only one word: 'Run.'",
+    "I never thought I would be the one to…",
+    "Today was supposed to be normal. It wasn’t."
+  ];
+  const s = pick(rng, starters);
+  const limit = pick(rng, ["80–120 words", "100–150 words"]);
+  return {
+    type:"Short writing",
+    time:"10–15 min",
+    q:`Write a short text (${limit}).\n\nStart with:\n“${s}”\n\nChecklist:\n- Use at least 3 time words (then, after that, suddenly…)\n- Use at least 2 adjectives\n- Finish with a strong last sentence`,
+    help:`Support:\n- Time words: then, after that, suddenly, finally\n- Adjectives: strange, quiet, nervous, surprised`
+  };
+}
+
+function makeReading(rng){
+  const texts = [
+    "Jamie checked the time again. The bus was late, and the rain was getting heavier. When it finally arrived, the driver didn’t look up. Jamie hesitated, then stepped inside.",
+    "The classroom was unusually quiet. A note lay on the teacher’s desk, folded neatly. No one wanted to be the first to touch it, but everyone wanted to know what it said.",
+    "Mina tried to focus on the test, but her mind kept returning to the phone in her pocket. One vibration. Then another. She swallowed and kept writing."
+  ];
+  const t = pick(rng, texts);
+  const qsets = [
+    "1) What is happening?\n2) How does the main character feel? Give one reason.\n3) Write one possible next sentence.",
+    "1) Find one word that creates atmosphere.\n2) What do you think will happen next?\n3) Write a short title (3–6 words).",
+    "1) What is the problem?\n2) Give one detail from the text.\n3) Rewrite one sentence in a simpler way."
+  ];
+  return {
+    type:"Mini reading",
+    time:"10–15 min",
+    q:`Text:\n${t}\n\nQuestions:\n${pick(rng, qsets)}`,
+    help:`Teacher support:\n- Ask students to underline one key sentence.\n- Encourage short answers + evidence.`
+  };
+}
+
+/* ---------- Choose type + generate ---------- */
+const chosen = pick(rng, TYPES);
+let task;
+if (chosen.key === "discussion") task = makeDiscussion(rng);
+else if (chosen.key === "grammar") task = makeGrammar(rng);
+else if (chosen.key === "riddle") task = makeRiddle(rng);
+else if (chosen.key === "vocab") task = makeVocab(rng);
+else if (chosen.key === "writing") task = makeWriting(rng);
+else task = makeReading(rng);
+
+/* ---------- Render ---------- */
+const months = ["januari","februari","mars","april","maj","juni","juli","augusti","september","oktober","november","december"];
+document.getElementById("dateText").textContent =
+  `${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}`;
+document.getElementById("dayInfo").textContent = `Dag ${doy} av 365`;
+document.getElementById("seedInfo").textContent =
+  `Kod: ${y}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
+
+document.getElementById("typePill").textContent = `Type: ${task.type}`;
+document.getElementById("timePill").textContent = `Time: ${task.time}`;
+document.getElementById("taskText").textContent = task.q;
+document.getElementById("helpText").textContent = task.help;
+</script>
+</body>
+</html>
