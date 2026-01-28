@@ -245,22 +245,51 @@ function makeVocab(rng){
 
 function makeFix(rng){
   const items = [
-    {bad:"He go to school yesterday.", good:"He went to school yesterday."},
-    {bad:"I am agree with you.", good:"I agree with you."},
-    {bad:"She have a new phone.", good:"She has a new phone."},
-    {bad:"We was late.", good:"We were late."},
-    {bad:"I have 17 years.", good:"I am 17 years old."},
-    {bad:"In the weekend I played.", good:"On the weekend I played."},
-    {bad:"I very like music.", good:"I really like music."}
+    {bad:"We was late because the bus was late.", good:"We were late because the bus was late.", focus:"was/were (plural)"},
+    {bad:"He don't like school in the morning.", good:"He doesn't like school in the morning.", focus:"don't/doesn't"},
+    {bad:"I am agree with you, but it is hard.", good:"I agree with you, but it is hard.", focus:"no 'am' with agree"},
+    {bad:"She have a new phone and it are expensive.", good:"She has a new phone and it is expensive.", focus:"has / is"},
+    {bad:"Yesterday I go to the store and buy food.", good:"Yesterday I went to the store and bought food.", focus:"past tense"},
+    {bad:"In the weekend I played football.", good:"On the weekend I played football.", focus:"on the weekend"},
+    {bad:"I very like this song because it's good.", good:"I really like this song because it's good.", focus:"really/very"}
   ];
+
   const it = pick(rng, items);
-  return {
-    type:"Fix the sentence",
-    time:"5–10 min",
-    q:`Fix the sentence:\n${it.bad}\n\nTask:\n1) Write the correct sentence.\n2) What changed? (choose ONE)\n   - verb\n   - word order\n   - missing word\n   - wrong word`,
-    help:`Suggested fix:\n${it.good}\nTip: accept “verb” as explanation if they can’t name the rule.`
-  };
+
+  const prompt =
+`Fix the sentence (and extend it):
+
+1) Write the correct sentence.
+2) What changed? Choose ONE:
+   - verb / tense
+   - do/does
+   - was/were
+   - wrong word
+3) Write 2 NEW sentences using the same rule (your own ideas).
+
+Optional (if finished):
+Write a 2-line dialogue using one of your new sentences.
+
+Sentence to fix:
+${it.bad}`;
+
+  const help =
+`Suggested fix:
+${it.good}
+
+Rule focus:
+${it.focus}
+
+Sentence starters (if stuck):
+- Today I…
+- Yesterday I…
+- We are…
+- He/She doesn’t…
+- Because…`;
+
+  return { type:"Fix + build (mini)", time:"5–10 min", q:prompt, help:help };
 }
+
 
 function makeReading(rng){
   const texts = [
