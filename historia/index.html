@@ -1,1 +1,392 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dagens historia (åk 7–9)</title>
+  <style>
+    :root{
+      --bg1:#2b153f; --bg2:#1e0f2e;
+      --card:#140b24ee; --text:#f3f4f6; --muted:#c4b5fd;
+      --accent:#a78bfa; --border:#3b1b5f;
+      --shadow:0 20px 60px rgba(0,0,0,.45); --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(167,139,250,.22), transparent 60%),
+        radial-gradient(900px 500px at 80% 30%, rgba(236,72,153,.12), transparent 60%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+      display:flex; align-items:center; justify-content:center;
+      padding:24px;
+    }
+    .wrap{width:min(980px,100%)}
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:28px;
+      backdrop-filter: blur(10px);
+    }
+    header{
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap:16px; margin-bottom:18px;
+    }
+    h1{margin:0; font-size:22px; letter-spacing:.2px}
+    .meta{ text-align:right; color:var(--muted); font-size:14px; line-height:1.4; white-space:nowrap; }
+    .badge{
+      display:inline-flex; gap:8px; align-items:center;
+      padding:6px 10px; border:1px solid var(--border);
+      border-radius:999px; color:var(--muted); font-size:13px; margin-top:8px;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:999px;background:var(--accent);
+      box-shadow:0 0 0 4px rgba(167,139,250,.15);
+    }
+    .row{
+      display:flex; gap:10px; flex-wrap:wrap; margin:14px 0 10px;
+      color:var(--muted); font-size:13px;
+    }
+    .pill{
+      border:1px solid rgba(59,27,95,.75);
+      background:rgba(2,6,23,.16);
+      padding:6px 10px; border-radius:999px;
+    }
+    .grid{display:grid; grid-template-columns: 1fr; gap:12px; margin-top:10px;}
+    .blockTitle{
+      margin:0 0 8px;
+      color:var(--muted);
+      font-size:13px;
+      letter-spacing:.2px;
+      text-transform:uppercase;
+    }
+    .task{
+      font-size:18px; line-height:1.55;
+      padding:16px; border-radius:14px;
+      background:rgba(2,6,23,.20);
+      border:1px solid rgba(59,27,95,.75);
+      white-space:pre-wrap;
+    }
+    .btnRow{
+      margin-top:12px;
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+    button{
+      cursor:pointer;
+      border:1px solid rgba(59,27,95,.75);
+      background:rgba(2,6,23,.16);
+      color:#f3f4f6;
+      padding:10px 14px;
+      border-radius:12px;
+      font-size:14px;
+    }
+    button.secondary{ background:transparent; color:var(--muted); }
+    button:hover{transform:translateY(-1px)}
+    details{
+      margin-top:12px;
+      border:1px solid rgba(59,27,95,.75);
+      border-radius:14px;
+      background:rgba(2,6,23,.16);
+      padding:12px 14px;
+    }
+    summary{ cursor:pointer; color:var(--muted); font-size:14px; list-style:none; }
+    summary::-webkit-details-marker{display:none}
+    .help{ margin-top:10px; font-size:15px; line-height:1.5; opacity:.95; white-space:pre-wrap; }
+    .footer{
+      margin-top:14px; display:flex; justify-content:space-between; gap:12px;
+      color:var(--muted); font-size:13px; flex-wrap:wrap;
+    }
+    a{color:var(--muted); text-decoration:none}
+    a:hover{text-decoration:underline}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <div>
+          <h1>Dagens historiauppgift</h1>
+          <div class="badge"><span class="dot"></span><span>Åk 7–9 · Mini + Fördjupning</span></div>
+        </div>
+        <div class="meta">
+          <div id="dateText"></div>
+          <div id="dayInfo"></div>
+        </div>
+      </header>
+
+      <div class="row">
+        <div class="pill" id="typePill">Fokus: …</div>
+        <div class="pill" id="timePill">Tid: 15–25 min</div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <div class="blockTitle">Miniuppgift (5–10 min)</div>
+          <div class="task" id="miniText">Laddar…</div>
+        </div>
+        <div>
+          <div class="blockTitle">Fördjupning (10–20 min)</div>
+          <div class="task" id="deepText">Laddar…</div>
+        </div>
+      </div>
+
+      <div class="btnRow">
+        <button id="newTaskBtn">Ny uppgift</button>
+        <button id="resetBtn" class="secondary">Tillbaka till dagens</button>
+      </div>
+
+      <details>
+        <summary>Visa lärarstöd</summary>
+        <div class="help" id="helpText"></div>
+      </details>
+
+      <div class="footer">
+        <div><a href="../">← Till ämnesval</a></div>
+        <div id="seedInfo"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ---------- RNG helpers ---------- */
+function dayOfYear(date) {
+  const start = new Date(date.getFullYear(), 0, 0);
+  const diff = date - start;
+  const oneDay = 24 * 60 * 60 * 1000;
+  return Math.floor(diff / oneDay);
+}
+function mulberry32(seed) {
+  return function() {
+    let t = seed += 0x6D2B79F5;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function randInt(rng, min, max) { return Math.floor(rng() * (max - min + 1)) + min; }
+function pick(rng, arr) { return arr[randInt(rng, 0, arr.length - 1)]; }
+
+/* ---------- Date seed ---------- */
+const today = new Date();
+const y = today.getFullYear();
+let doy = dayOfYear(today);
+if (doy === 366) doy = 365;
+const seed = y * 1000 + doy;
+const rngDay = mulberry32(seed);
+
+/* ---------- Task builders ---------- */
+function makeSourceCrit(rng){
+  const contexts = [
+    {topic:"Franska revolutionen", claim:"En pamflett beskriver kungen som 'folkets fiende'."},
+    {topic:"Industrialiseringen", claim:"En fabrikägare skriver att barnarbete 'är nödvändigt'."},
+    {topic:"Första världskriget", claim:"En tidning säger att 'segern är nära'."},
+    {topic:"Kalla kriget", claim:"En affisch säger att 'den andra sidan ljuger alltid'."},
+    {topic:"Vikingatid", claim:"En berättelse nedtecknas långt efter händelsen."}
+  ];
+  const c = pick(rng, contexts);
+  return {
+    type:"Källkritik",
+    mini:`Källkritik (snabb):
+${c.claim}
+
+Svara med 3 korta punkter:
+1) Vem kan ha skrivit?
+2) Varför kan den vara vinklad?
+3) Vilken fråga hade du velat ställa till källan?`,
+    deep:`Fördjupning:
+Tänk att källan handlar om ${c.topic}.
+Skriv 6–8 rader där du:
+- beskriver 2 möjliga syften med källan
+- nämner 2 källkritiska begrepp (t.ex. tendens, beroende, tid, äkthet)
+- förklarar hur du skulle kontrollera uppgiften med en annan typ av källa.`,
+    help:`Lärarstöd:
+- Poängtera: källkritik = bedöma trovärdighet, inte bara "är det sant?".
+- Godtagbart: elever kan resonera hypotetiskt (vem/varför/hur kontrollera).`
+  };
+}
+
+function makeCauseEffect(rng){
+  const events = [
+    {topic:"Franska revolutionen", causes:["orättvisa skatter","dyr mat","idéer om frihet"], effects:["kungens makt minskade","samhället förändrades","nya konflikter uppstod"]},
+    {topic:"Industrialiseringen", causes:["maskiner","befolkningsökning","billigare produktion"], effects:["urbanisering","nya arbeten","sociala problem"]},
+    {topic:"Första världskriget", causes:["allianser","nationalism","skottet i Sarajevo"], effects:["nya gränser","inflation/kris","missnöje i Europa"]},
+    {topic:"Kalla kriget", causes:["motsatta ideologier","maktkamp","atomvapen"], effects:["kapprustning","propaganda","konflikter via ombud"]},
+    {topic:"Kolonialism", causes:["råvaror","makt/territorium","tekniskt övertag"], effects:["förändrade samhällen","motstånd","långvariga konsekvenser"]},
+  ];
+  const e = pick(rng, events);
+  const c1 = pick(rng, e.causes), c2 = pick(rng, e.causes.filter(x=>x!==c1));
+  const ef1 = pick(rng, e.effects), ef2 = pick(rng, e.effects.filter(x=>x!==ef1));
+  return {
+    type:"Orsak–konsekvens",
+    mini:`Orsak–konsekvens:
+Tema: ${e.topic}
+
+Skriv:
+- 2 orsaker (varför hände det?)
+- 2 konsekvenser (vad blev följden?)
+
+Du får använda stödorden:
+Orsak: ${c1}, ${c2}
+Konsekvens: ${ef1}, ${ef2}`,
+    deep:`Fördjupning:
+Välj EN orsak och gör en "orsakskedja" i 4 steg:
+Orsak → leder till → leder till → händelse.
+
+Skriv sedan 6–8 rader:
+Var den här händelsen mer "plötslig" eller "långsam"?
+Motivera med exempel.`,
+    help:`Lärarstöd:
+- Hjälp elever skilja: långsiktiga orsaker vs utlösande faktor.
+- Godtagbart: enkla kedjor, tydliga pilar/ord.`
+  };
+}
+
+function makeTimeline(rng){
+  const themes = [
+    {topic:"Demokratisering i Sverige", points:["allmän rösträtt","folkrörelser","välfärdsreformer","fackföreningar"]},
+    {topic:"Andra världskriget", points:["upptakt","vändpunkt","krigsslut","efterkrigstid"]},
+    {topic:"Antiken till medeltid", points:["romarriket","kristendomens spridning","feodalism","städer/handel"]},
+    {topic:"Kalla kriget", points:["järnridån","Kubakrisen","avspänning","murens fall"]},
+    {topic:"Industrialiseringen", points:["jordbrukets förändring","fabriker","urbanisering","arbetarrörelse"]}
+  ];
+  const t = pick(rng, themes);
+  const p = t.points;
+  return {
+    type:"Tidslinje",
+    mini:`Tidslinje:
+Tema: ${t.topic}
+
+Sätt dessa i en rimlig ordning (1–4):
+- ${p[0]}
+- ${p[1]}
+- ${p[2]}
+- ${p[3]}
+
+Skriv en mening om VARFÖR du valde ordningen.`,
+    deep:`Fördjupning:
+Gör en mini-tidslinje med 4 punkter (du får använda orden ovan).
+Till varje punkt: skriv 1 mening som förklarar vad det betyder.
+Avsluta med: "Det viktigaste i utvecklingen var … eftersom …"`,
+    help:`Lärarstöd:
+- Betona resonemang: kronologi + samband.
+- Tillåt att flera ordningar kan vara rimliga om de motiveras.`
+  };
+}
+
+function makePerspective(rng){
+  const settings = [
+    {topic:"Industrialiseringen", roles:["fabrikägare","arbetarbarn","läkare","journalist"]},
+    {topic:"Franska revolutionen", roles:["adelsman","bonde","soldat","bagare"]},
+    {topic:"Första världskriget", roles:["soldat","sjuksköterska","politiker","brevbärare"]},
+    {topic:"Kolonialism", roles:["kolonialtjänsteman","lokal bonde","missionär","handlare"]},
+    {topic:"Kalla kriget", roles:["lärare","tonåring","soldat","nyhetsreporter"]}
+  ];
+  const s = pick(rng, settings);
+  const r1 = pick(rng, s.roles);
+  const r2 = pick(rng, s.roles.filter(x=>x!==r1));
+  return {
+    type:"Perspektiv",
+    mini:`Perspektiv:
+Tema: ${s.topic}
+
+Skriv 3 meningar som ${r1}:
+- "Jag ser …"
+- "Jag är orolig för …"
+- "Jag vill att …"`,
+    deep:`Fördjupning:
+Jämför två perspektiv: ${r1} och ${r2}.
+Skriv en tabell med 3 rader:
+
+Rubriker: "Vad vill jag?" | "Vad är problemet?" | "Vem tjänar på det?"
+
+Fyll i båda rollerna och avsluta med:
+"De tänker olika eftersom …"`,
+    help:`Lärarstöd:
+- Bra för empati + förstå samhällsstruktur.
+- Godtagbart: enkla meningar, tydliga skillnader.`
+  };
+}
+
+function makeConcepts(rng){
+  const sets = [
+    {topic:"Demokrati & makt", words:["demokrati","diktatur","riksdag","yttrandefrihet"], defs:["folkstyre","en person/parti styr","Sveriges parlament","rätt att uttrycka åsikter"]},
+    {topic:"Ekonomi & arbete", words:["inflation","strejk","produktion","handel"], defs:["priser stiger","arbetare slutar jobba","tillverkning","köp/sälj mellan parter"]},
+    {topic:"Krig & konflikt", words:["allians","propaganda","fredsavtal","mobilisering"], defs:["samarbete mellan stater","påverkan via budskap","avtal som avslutar krig","förbereda armén"]},
+    {topic:"Samhällsförändring", words:["urbanisering","industrialism","kolonialism","emigration"], defs:["flytt till städer","maskiner/fabriker","kontroll av andra områden","flytt till annat land"]}
+  ];
+  const s = pick(rng, sets);
+  const i = randInt(rng,0,3);
+  const j = (i + randInt(rng,1,3)) % 4;
+  return {
+    type:"Begrepp",
+    mini:`Begrepp:
+Tema: ${s.topic}
+
+Matcha 2 ord med rätt förklaring:
+1) ${s.words[i]}
+2) ${s.words[j]}
+
+Förklaringar:
+A) ${s.defs[i]}
+B) ${s.defs[j]}
+
+Skriv sedan en mening med ett av orden.`,
+    deep:`Fördjupning:
+Välj ett av orden (${s.words[i]} eller ${s.words[j]}).
+Skriv 6–8 rader:
+- Förklara ordet med egna ord
+- Ge ett historiskt exempel
+- Skriv en "nu-koppling": Var ser vi något liknande idag?`,
+    help:`Lärarstöd:
+- Målet är begreppsförståelse + exempel.
+- Nu-koppling kan vara bred (politik, ekonomi, media).`
+  };
+}
+
+const BUILDERS = [makeSourceCrit, makeCauseEffect, makeTimeline, makePerspective, makeConcepts];
+
+function generate(rng){
+  const b = pick(rng, BUILDERS);
+  return b(rng);
+}
+
+/* ---------- Render ---------- */
+function render(pack){
+  document.getElementById("typePill").textContent = `Fokus: ${pack.type}`;
+  document.getElementById("timePill").textContent = `Tid: 15–25 min`;
+  document.getElementById("miniText").textContent = pack.mini;
+  document.getElementById("deepText").textContent = pack.deep;
+  document.getElementById("helpText").textContent = pack.help || "";
+}
+
+const todays = generate(rngDay);
+
+// header/footer
+const months = ["januari","februari","mars","april","maj","juni","juli","augusti","september","oktober","november","december"];
+document.getElementById("dateText").textContent =
+  `${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}`;
+document.getElementById("dayInfo").textContent = `Dag ${doy} av 365`;
+document.getElementById("seedInfo").textContent =
+  `Kod: ${y}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
+
+render(todays);
+
+// buttons
+const counterKey = `his_extra_counter_${y}_${doy}`;
+let counter = Number(localStorage.getItem(counterKey) || "0");
+
+document.getElementById("newTaskBtn").addEventListener("click", () => {
+  counter += 1;
+  localStorage.setItem(counterKey, String(counter));
+  const extraSeed = seed * 100000 + counter * 23 + 911;
+  render(generate(mulberry32(extraSeed)));
+});
+document.getElementById("resetBtn").addEventListener("click", () => render(todays));
+</script>
+</body>
+</html>
 
