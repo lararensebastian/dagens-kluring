@@ -5,30 +5,116 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dagens uppgift</title>
   <style>
-    body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
-      font-family:system-ui,Segoe UI,Arial;background:linear-gradient(160deg,#2b153f,#1e0f2e);color:#f3f4f6;padding:24px}
-    .card{width:min(720px,100%);background:rgba(20,11,36,.92);border:1px solid #3b1b5f;
-      border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.45);padding:26px}
+    body{
+      margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+      font-family:system-ui,Segoe UI,Arial;
+      background:linear-gradient(160deg,#2b153f,#1e0f2e);
+      color:#f3f4f6;padding:24px
+    }
+    .card{
+      width:min(720px,100%);
+      background:rgba(20,11,36,.92);
+      border:1px solid #3b1b5f;
+      border-radius:18px;
+      box-shadow:0 20px 60px rgba(0,0,0,.45);
+      padding:26px
+    }
     h1{margin:0 0 8px;font-size:22px}
+    h2{margin:18px 0 8px;font-size:16px;color:#e9d5ff}
     p{margin:0 0 18px;color:#c4b5fd}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
-    a{display:block;text-decoration:none;color:#f3f4f6;padding:14px 16px;border-radius:14px;
-      border:1px solid #3b1b5f;background:rgba(2,6,23,.18)}
-    a:hover{transform:translateY(-1px)}
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+      gap:12px
+    }
+
+    a{
+      display:block;
+      text-decoration:none;
+      color:#f3f4f6;
+      padding:14px 16px;
+      border-radius:14px;
+      border:1px solid #3b1b5f;
+      background:rgba(2,6,23,.18);
+      transition:transform .12s ease, background .12s ease, border-color .12s ease
+    }
+    a:hover{
+      transform:translateY(-1px);
+      background:rgba(180,108,255,.10);
+      border-color:rgba(180,108,255,.55)
+    }
+
+    .tile-kicker{display:block;font-size:12px;color:#c4b5fd;margin-bottom:6px}
+    .tile-title{display:block;font-weight:800}
+    .tile-desc{display:block;font-size:13px;color:#c4b5fd;margin-top:6px}
+
+    details{margin-top:10px}
+    summary{cursor:pointer;color:#c4b5fd;user-select:none}
+    .list{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+    .list a{padding:10px 12px}
+
+    hr{border:0;border-top:1px solid rgba(196,181,253,.18);margin:16px 0}
+
     .small{margin-top:14px;color:#c4b5fd;font-size:13px}
   </style>
 </head>
 <body>
   <div class="card">
     <h1>Dagens uppgift</h1>
-    <p>Välj ämne:</p>
+    <p>Välj ämne – eller kör en snabb lektionsstart.</p>
+
+    <h2>Snabbstart (2–5 min)</h2>
     <div class="grid">
-      <a href="matte/">Matte</a>
-      <a href="svenska/">Svenska</a>
-      <a href="engelska/">Engelska</a>
-      <a href="kluring/">Kluringar & gåtor</a>
-      <a href="historia/">Historia</a>
+      <a href="https://ordel.se/" target="_blank" rel="noopener">
+        <span class="tile-kicker">2–4 min • Svenska</span>
+        <span class="tile-title">Ordel (Wordle på svenska)</span>
+        <span class="tile-desc">Mjukstart + prata strategi.</span>
+      </a>
+
+      <a href="https://contexto.me/" target="_blank" rel="noopener">
+        <span class="tile-kicker">3–6 min • Svenska/Eng</span>
+        <span class="tile-title">Contexto</span>
+        <span class="tile-desc">Gissa ord med “närhet”.</span>
+      </a>
+
+      <a href="https://semantle.com/" target="_blank" rel="noopener">
+        <span class="tile-kicker">3–6 min • Eng</span>
+        <span class="tile-title">Semantle</span>
+        <span class="tile-desc">Mer “meaning”, svårare.</span>
+      </a>
+
+      <a href="kluring/" target="_blank" rel="noopener">
+        <span class="tile-kicker">3–5 min • Alla</span>
+        <span class="tile-title">Dagens kluring</span>
+        <span class="tile-desc">Din egen – funkar alltid.</span>
+      </a>
     </div>
+
+    <details>
+      <summary>Fler lektionsstarters</summary>
+      <div class="list">
+        <a href="https://wordle.rd.nyt.net/" target="_blank" rel="noopener">Wordle (original, NYT)</a>
+        <a href="https://ordlig.se/" target="_blank" rel="noopener">Ordlig (Wordle på svenska)</a>
+        <a href="https://whiteboard.fi" target="_blank" rel="noopener">Whiteboard.fi (snabb fråga)</a>
+        <a href="https://kahoot.com" target="_blank" rel="noopener">Kahoot (snabbquiz)</a>
+        <a href="https://quizlet.com" target="_blank" rel="noopener">Quizlet (glosor)</a>
+        <a href="https://wordwall.net" target="_blank" rel="noopener">Wordwall (spel/övningar)</a>
+        <a href="https://www.geogebra.org" target="_blank" rel="noopener">GeoGebra (matte)</a>
+      </div>
+    </details>
+
+    <hr />
+
+    <h2>Ämnen</h2>
+    <div class="grid">
+      <a href="matte/"><span class="tile-title">Matte</span></a>
+      <a href="svenska/"><span class="tile-title">Svenska</span></a>
+      <a href="engelska/"><span class="tile-title">Engelska</span></a>
+      <a href="kluring/"><span class="tile-title">Kluringar & gåtor</span></a>
+      <a href="historia/"><span class="tile-title">Historia</span></a>
+    </div>
+
     <div class="small">Samma länkar varje dag – nytt innehåll automatiskt.</div>
   </div>
 </body>
